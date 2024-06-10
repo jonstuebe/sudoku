@@ -1,0 +1,4 @@
+export type Difficulty = "easy" | "medium" | "hard";
+
+export type Board = number[][];
+export type EmptySpot = [number, number];
