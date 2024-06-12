@@ -1,6 +1,6 @@
 import { observable } from "@legendapp/state";
 import { copyBoard, getBoards, isNumberComplete } from "./logic";
-import { Board, Difficulty } from "./types";
+import { Board, Difficulty, WinningAnimation } from "./types";
 
 export type CellCoords = [number, number];
 export type CellNotes = number[];
@@ -21,11 +21,12 @@ interface Store {
    * Solved board
    */
   solvedBoard: Board;
-
   startedAt?: Date;
   finishedAt?: Date;
 
+  // settings
   showErrors: boolean;
+  winningAnimation: WinningAnimation;
 
   resetBoard: VoidFunction;
   newGame: (difficulty: Difficulty) => void;
@@ -36,11 +37,15 @@ interface Store {
   toggleNote: (coords: CellCoords | undefined, note: number) => void;
   clearSelectedCell: VoidFunction;
   toggleMode: VoidFunction;
+  gameComplete: VoidFunction;
+  isGameComplete: () => boolean;
+  validateGame: VoidFunction;
 }
 
 export const $store = observable<Store>({
   selectedCell: undefined,
   mode: "normal",
+  winningAnimation: "Stars",
   notes: new Map<CellCoords, CellNotes>(),
   ...getBoards("easy"),
   resetBoard: () => {
@@ -56,6 +61,24 @@ export const $store = observable<Store>({
     $store.unfilledBoard.set(unfilledBoard);
     $store.startedAt.set(new Date());
     $store.selectedCell.set(undefined);
+  },
+  validateGame() {
+    if ($store.isGameComplete()) {
+      $store.gameComplete();
+    }
+  },
+  isGameComplete() {
+    const board = $store.board.get();
+    const solvedBoard = $store.solvedBoard.get();
+
+    if (JSON.stringify(board) === JSON.stringify(solvedBoard)) {
+      return true;
+    }
+
+    return false;
+  },
+  gameComplete() {
+    $store.finishedAt.set(new Date());
   },
   isCellValid: (coords: CellCoords) => {
     const [row, col] = coords;
@@ -98,6 +121,7 @@ export const $store = observable<Store>({
     if (!coords) return;
     const [row, col] = coords;
     $store.board[row][col].set(value);
+    $store.validateGame();
   },
   clearSelectedCell: () => {
     const selectedCell = $store.selectedCell.get();

@@ -3,13 +3,14 @@ import { MenuView } from "@react-native-menu/menu";
 import { useTheme } from "@react-navigation/native";
 import { View } from "react-native";
 import { $store } from "../store";
-import { Difficulty } from "../types";
+import { Difficulty, WinningAnimation } from "../types";
 import { Clock } from "./Clock";
 import * as Haptics from "expo-haptics";
 import { observer } from "@legendapp/state/react";
 
 export const Header = observer(function Header() {
   const { colors } = useTheme();
+  const winningAnimation = $store.winningAnimation.get();
 
   return (
     <View
@@ -37,6 +38,11 @@ export const Header = observer(function Header() {
               case "displayErrors":
                 $store.showErrors.set(!$store.showErrors.get());
                 break;
+              case "Balloons":
+              case "Hearts":
+              case "Stars":
+                $store.winningAnimation.set(id as WinningAnimation);
+                break;
             }
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
           }}
@@ -49,6 +55,27 @@ export const Header = observer(function Header() {
               id: "displayErrors",
               title: "Show Errors",
               state: $store.showErrors.get() ? "on" : "off",
+            },
+            {
+              id: "winningAnimation",
+              title: "Winning Animation",
+              subactions: [
+                {
+                  id: "Stars",
+                  title: "Stars",
+                  state: winningAnimation === "Stars" ? "on" : "off",
+                },
+                {
+                  id: "Hearts",
+                  title: "Hearts",
+                  state: winningAnimation === "Hearts" ? "on" : "off",
+                },
+                {
+                  id: "Balloons",
+                  title: "Balloons",
+                  state: winningAnimation === "Balloons" ? "on" : "off",
+                },
+              ],
             },
           ]}
         >
