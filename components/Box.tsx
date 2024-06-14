@@ -34,7 +34,7 @@ export function Box({
                 key={colIndex}
                 coords={[rowIndex + rowCoord, colIndex + colCoord]}
               >
-                {num > 0 ? num : undefined}
+                {num}
               </Cell>
             );
           })}

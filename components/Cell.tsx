@@ -5,6 +5,8 @@ import { ThemedText } from "../components/ThemedText";
 import { $store, CellCoords } from "../store";
 import { chunkArray } from "../utils";
 import * as Haptics from "expo-haptics";
+import { iOSColors } from "react-native-typography";
+import { useEffect, useMemo } from "react";
 
 export const Cell = observer(function Cell({
   children: num,
@@ -12,13 +14,14 @@ export const Cell = observer(function Cell({
   textStyle,
   coords,
   ...props
-}: Omit<PressableProps, "onPress"> & {
-  children?: number;
+}: Omit<PressableProps, "onPress" | "disabled"> & {
+  children: number;
   textStyle?: Pick<TextStyle, "fontSize" | "lineHeight">;
   coords: CellCoords;
 }) {
   const { colors } = useTheme();
   const selectedCell = $store.selectedCell.get();
+  const isHighlighted = $store.isCellHighlighted(coords);
   const isSelected =
     selectedCell &&
     selectedCell[0] === coords[0] &&
@@ -51,17 +54,24 @@ export const Cell = observer(function Cell({
               borderColor: colors.notification,
             }
           : undefined,
+        isHighlighted
+          ? {
+              borderColor: iOSColors.green,
+            }
+          : undefined,
         typeof style === "function" ? style(state) : style,
       ]}
       onPress={() => {
         if (isEditable) {
-          $store.selectedCell.set(coords);
-          Haptics.selectionAsync();
+          $store.setSelected(coords);
+        } else {
+          $store.displayNumber(num);
         }
+        Haptics.selectionAsync();
       }}
       {...props}
     >
-      {num !== undefined ? (
+      {num !== 0 ? (
         <ThemedText
           style={[
             {

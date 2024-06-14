@@ -7,6 +7,7 @@ export type CellNotes = number[];
 
 interface Store {
   selectedCell?: CellCoords;
+  highlightedCells: CellCoords[];
   notes: Map<CellCoords, CellNotes>;
   mode: "normal" | "notes";
   /**
@@ -30,10 +31,13 @@ interface Store {
 
   resetBoard: VoidFunction;
   newGame: (difficulty: Difficulty) => void;
+  displayNumber: (value: number) => void;
+  isCellHighlighted: (coords: CellCoords) => boolean;
   isCellValid: (coords: CellCoords) => boolean;
   isCellEditable: (coords: CellCoords) => boolean;
   isNumberComplete: (value: number) => boolean;
   setValue: (coords: CellCoords | undefined, value: number) => void;
+  setSelected: (coords: CellCoords) => void;
   toggleNote: (coords: CellCoords | undefined, note: number) => void;
   clearSelectedCell: VoidFunction;
   toggleMode: VoidFunction;
@@ -47,6 +51,7 @@ export const $store = observable<Store>({
   mode: "normal",
   winningAnimation: "Stars",
   notes: new Map<CellCoords, CellNotes>(),
+  highlightedCells: [],
   ...getBoards("easy"),
   resetBoard: () => {
     const unfilledBoard = $store.unfilledBoard.get();
@@ -66,6 +71,37 @@ export const $store = observable<Store>({
     if ($store.isGameComplete()) {
       $store.gameComplete();
     }
+  },
+  displayNumber: (value: number) => {
+    const highlightedCells: CellCoords[] = [];
+    const board = $store.board.get();
+
+    // loop through each row and column and check if cell value is equal to argument value
+    // if it is, set the cell to highlighted
+    for (let rowIndex = 0; rowIndex < 9; rowIndex++) {
+      for (let colIndex = 0; colIndex < 9; colIndex++) {
+        if (board[rowIndex][colIndex] === value) {
+          highlightedCells.push([rowIndex, colIndex]);
+        }
+      }
+    }
+
+    $store.highlightedCells.set(highlightedCells);
+  },
+  isCellHighlighted(coords: CellCoords) {
+    let isCellHighlighted = false;
+    const highlightedCells = $store.highlightedCells.get();
+
+    highlightedCells.map((highlightedCell) => {
+      if (
+        highlightedCell[0] === coords[0] &&
+        highlightedCell[1] === coords[1]
+      ) {
+        isCellHighlighted = true;
+      }
+    });
+
+    return isCellHighlighted;
   },
   isGameComplete() {
     const board = $store.board.get();
@@ -119,9 +155,19 @@ export const $store = observable<Store>({
   },
   setValue: (coords, value) => {
     if (!coords) return;
+    const highlightedCells = $store.highlightedCells.get();
     const [row, col] = coords;
     $store.board[row][col].set(value);
+
+    if (highlightedCells.length > 0 && $store.isCellValid(coords)) {
+      $store.displayNumber(value);
+    }
+
     $store.validateGame();
+  },
+  setSelected: (coords) => {
+    $store.selectedCell.set(coords);
+    // $store.highlightedCells.set([]);
   },
   clearSelectedCell: () => {
     const selectedCell = $store.selectedCell.get();
