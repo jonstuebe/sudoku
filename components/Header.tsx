@@ -7,9 +7,10 @@ import { Difficulty, WinningAnimation } from "../types";
 import { Clock } from "./Clock";
 import * as Haptics from "expo-haptics";
 import { observer } from "@legendapp/state/react";
+import { iOSColors } from "react-native-typography";
 
 export const Header = observer(function Header() {
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
   const winningAnimation = $store.winningAnimation.get();
 
   return (
@@ -82,7 +83,7 @@ export const Header = observer(function Header() {
           <Icon
             name="ellipsis-horizontal-circle"
             size={30}
-            color={colors.text}
+            color={dark ? "#FFF" : "#777"}
           />
         </MenuView>
       </View>

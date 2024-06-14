@@ -22,7 +22,7 @@ export function Box({
         flex: 1,
         borderWidth: 2,
         borderRadius: 8,
-        borderColor: dark ? iOSColors.gray : iOSColors.midGray,
+        borderColor: dark ? iOSColors.gray : iOSColors.lightGray,
         padding: 4,
         gap: 4,
       }}

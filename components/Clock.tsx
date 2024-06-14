@@ -3,8 +3,10 @@ import { differenceInSeconds } from "date-fns";
 import { useEffect, useState } from "react";
 import { ThemedText } from "../components/ThemedText";
 import { $store } from "../store";
+import { useTheme } from "@react-navigation/native";
 
 export const Clock = observer(function Clock() {
+  const { dark } = useTheme();
   const [text, setText] = useState("");
   const startedAt = $store.startedAt.get();
 
@@ -37,7 +39,13 @@ export const Clock = observer(function Clock() {
   }, [startedAt]);
 
   return (
-    <ThemedText style={{ textAlign: "center", fontWeight: "600" }}>
+    <ThemedText
+      style={{
+        textAlign: "center",
+        fontWeight: "600",
+        color: dark ? "#FFF" : "#555",
+      }}
+    >
       {text}
     </ThemedText>
   );
