@@ -1,6 +1,7 @@
 import { Observable, computed, observable } from "@legendapp/state";
-import { copyBoard, getBoards, toMetaBoard } from "./logic";
+import { copyBoard, fromMetaBoard, getBoards, toMetaBoard } from "./logic";
 import { Board, BoardWithMeta, Difficulty, WinningAnimation } from "./types";
+import { registerDevMenuItems } from "expo-dev-menu";
 
 export type CellCoords = [number, number];
 export type CellNotes = number[];
@@ -68,6 +69,7 @@ export const $store = observable<Store>({
     const unfilledBoard = $store.unfilledBoard.get();
     $store.board.set(toMetaBoard(copyBoard(unfilledBoard)));
     $store.startedAt.set(new Date());
+    $store.finishedAt.set(undefined);
   },
   newGame: (difficulty: Difficulty) => {
     const { board, solvedBoard, unfilledBoard } = getBoards(difficulty);
@@ -98,7 +100,7 @@ export const $store = observable<Store>({
     const board = $store.board.get();
     const solvedBoard = $store.solvedBoard.get();
 
-    if (JSON.stringify(board) === JSON.stringify(solvedBoard)) {
+    if (JSON.stringify(fromMetaBoard(board)) === JSON.stringify(solvedBoard)) {
       return true;
     }
 
@@ -201,3 +203,15 @@ export const $store = observable<Store>({
     });
   },
 });
+
+registerDevMenuItems([
+  {
+    name: "Fill In Cells",
+    callback: () => {
+      const solvedBoard = copyBoard($store.solvedBoard.get());
+      solvedBoard[0][0] = 0;
+
+      $store.board.set(toMetaBoard(solvedBoard));
+    },
+  },
+]);

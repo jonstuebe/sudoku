@@ -142,6 +142,10 @@ export function getBoards(difficulty: Difficulty): {
   };
 }
 
+export function fromMetaBoard(board: BoardWithMeta): Board {
+  return board.map((row) => row.map((cell) => cell.value));
+}
+
 export function toMetaBoard(board: Board): BoardWithMeta {
   const metaBoard: BoardWithMeta = [];
 

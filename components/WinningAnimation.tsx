@@ -24,9 +24,20 @@ export const WinningAnimation = observer(function WinningAnimation() {
   const ref = useRef<PopperHandler>(null);
 
   useEffect(() => {
+    let timer: NodeJS.Timeout | undefined = undefined;
+
     if (finishedAt) {
       ref.current?.start();
+      timer = setTimeout(() => {
+        $store.resetBoard();
+      }, 4000);
     }
+
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
   }, [finishedAt]);
 
   switch (winningAnimation) {
