@@ -1,3 +1,4 @@
+import { toMetaBoard } from "./logic";
 import {
   checkRow,
   getColumn,
@@ -64,12 +65,14 @@ describe("checkBox", () => {
     board[1] = [0, 0, 0, 4, 5, 6, 0, 0, 0];
     board[2] = [0, 0, 0, 7, 8, 9, 0, 0, 0];
 
-    expect(checkBox(board, 0, 0)).toEqual(false);
-    expect(checkBox(board, 1, 3)).toEqual(true);
+    const boardWithMeta = toMetaBoard(board);
+
+    expect(checkBox(boardWithMeta, 0, 0)).toEqual(false);
+    expect(checkBox(boardWithMeta, 1, 3)).toEqual(true);
   });
 
   it("returns false if the box is invalid", () => {
-    const board = generateEmptyBoard();
+    const board = toMetaBoard(generateEmptyBoard());
 
     expect(checkBox(board, 0, 0)).toEqual(false);
   });
@@ -83,16 +86,28 @@ describe("getBoxByCoords", () => {
     board[1] = [0, 0, 0, 4, 5, 6, 0, 0, 0];
     board[2] = [0, 0, 0, 7, 8, 9, 0, 0, 0];
 
-    expect(getBoxByCoords(board, [0, 0])).toEqual([
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
+    const boardWithMeta = toMetaBoard(board);
+
+    const getDefaultCell = (value: number) => {
+      return {
+        value,
+        highlighted: false,
+        notes: [],
+        selected: false,
+        valid: value !== 0,
+        editable: value === 0,
+      };
+    };
+    expect(getBoxByCoords(boardWithMeta, [0, 0])).toEqual([
+      [getDefaultCell(0), getDefaultCell(0), getDefaultCell(0)],
+      [getDefaultCell(0), getDefaultCell(0), getDefaultCell(0)],
+      [getDefaultCell(0), getDefaultCell(0), getDefaultCell(0)],
     ]);
 
-    expect(getBoxByCoords(board, [1, 4])).toEqual([
-      [1, 2, 3],
-      [4, 5, 6],
-      [7, 8, 9],
+    expect(getBoxByCoords(boardWithMeta, [1, 4])).toEqual([
+      [getDefaultCell(1), getDefaultCell(2), getDefaultCell(3)],
+      [getDefaultCell(4), getDefaultCell(5), getDefaultCell(6)],
+      [getDefaultCell(7), getDefaultCell(8), getDefaultCell(9)],
     ]);
   });
 });

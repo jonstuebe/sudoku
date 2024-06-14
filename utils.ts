@@ -49,7 +49,9 @@ export function checkBox(
   row: number,
   column: number
 ): boolean {
-  const boxValues = getBoxByCoords(board, [row, column]);
+  const boxValues = getBoxByCoords(board, [row, column]).map((row) => {
+    return row.map((col) => col.value);
+  });
 
   if (arraySum(boxValues.flatMap((row) => row)) !== correctSum) {
     return false;

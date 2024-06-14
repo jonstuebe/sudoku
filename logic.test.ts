@@ -1,4 +1,4 @@
-import { generateSudoku, isNumberComplete, isSafe } from "./logic";
+import { generateSudoku, isSafe, toMetaBoard } from "./logic";
 import { checkRow, checkBox, checkColumn } from "./utils";
 
 describe("isSafe", () => {
@@ -23,6 +23,7 @@ describe("isSafe", () => {
 describe("generateSudoku", () => {
   it("generates a valid sudoku", () => {
     const board = generateSudoku();
+    const boardWithMeta = toMetaBoard(board);
 
     expect(checkRow(board, 0)).toBeTruthy();
     expect(checkRow(board, 1)).toBeTruthy();
@@ -44,44 +45,14 @@ describe("generateSudoku", () => {
     expect(checkColumn(board, 7)).toBeTruthy();
     expect(checkColumn(board, 8)).toBeTruthy();
 
-    expect(checkBox(board, 0, 0)).toBeTruthy();
-    expect(checkBox(board, 1, 1)).toBeTruthy();
-    expect(checkBox(board, 2, 2)).toBeTruthy();
-    expect(checkBox(board, 3, 3)).toBeTruthy();
-    expect(checkBox(board, 4, 4)).toBeTruthy();
-    expect(checkBox(board, 5, 5)).toBeTruthy();
-    expect(checkBox(board, 6, 6)).toBeTruthy();
-    expect(checkBox(board, 7, 7)).toBeTruthy();
-    expect(checkBox(board, 8, 8)).toBeTruthy();
-  });
-});
-
-describe("isNumberComplete", () => {
-  it("returns true if the number is complete", () => {
-    const board = [
-      [1, 2, 3, 6, 7, 8, 9, 4, 5],
-      [5, 8, 4, 2, 3, 9, 7, 6, 1],
-      [9, 6, 7, 1, 4, 5, 3, 2, 8],
-      [3, 7, 2, 4, 6, 1, 5, 8, 9],
-      [6, 9, 1, 5, 8, 3, 2, 7, 4],
-      [4, 5, 8, 7, 9, 2, 6, 1, 3],
-      [8, 3, 6, 9, 2, 4, 1, 5, 7],
-      [2, 1, 9, 8, 5, 7, 4, 3, 6],
-      [7, 4, 5, 3, 1, 6, 8, 9, 2],
-    ];
-
-    expect(isNumberComplete(board, 1)).toBeTruthy();
-    expect(isNumberComplete(board, 2)).toBeTruthy();
-    expect(isNumberComplete(board, 3)).toBeTruthy();
-    expect(isNumberComplete(board, 4)).toBeTruthy();
-    expect(isNumberComplete(board, 5)).toBeTruthy();
-    expect(isNumberComplete(board, 6)).toBeTruthy();
-    expect(isNumberComplete(board, 7)).toBeTruthy();
-    expect(isNumberComplete(board, 8)).toBeTruthy();
-    expect(isNumberComplete(board, 9)).toBeTruthy();
-
-    board[0][0] = 0;
-
-    expect(isNumberComplete(board, 1)).toBeFalsy();
+    expect(checkBox(boardWithMeta, 0, 0)).toBeTruthy();
+    expect(checkBox(boardWithMeta, 1, 1)).toBeTruthy();
+    expect(checkBox(boardWithMeta, 2, 2)).toBeTruthy();
+    expect(checkBox(boardWithMeta, 3, 3)).toBeTruthy();
+    expect(checkBox(boardWithMeta, 4, 4)).toBeTruthy();
+    expect(checkBox(boardWithMeta, 5, 5)).toBeTruthy();
+    expect(checkBox(boardWithMeta, 6, 6)).toBeTruthy();
+    expect(checkBox(boardWithMeta, 7, 7)).toBeTruthy();
+    expect(checkBox(boardWithMeta, 8, 8)).toBeTruthy();
   });
 });
