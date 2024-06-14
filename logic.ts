@@ -1,4 +1,4 @@
-import { Board, Difficulty } from "./types";
+import { Board, BoardWithMeta, Difficulty } from "./types";
 
 export function isSafe(
   board: Board,
@@ -127,39 +127,42 @@ function removeNumbers(board: Board, difficulty: Difficulty): Board {
 }
 
 export function getBoards(difficulty: Difficulty): {
-  board: Board;
-  solvedBoard: Board;
+  board: BoardWithMeta;
   unfilledBoard: Board;
+  solvedBoard: Board;
 } {
   const solvedBoard = generateSudoku();
   const board = removeNumbers(copyBoard(solvedBoard), difficulty);
   const unfilledBoard = copyBoard(board);
 
   return {
-    board,
-    solvedBoard,
+    board: toMetaBoard(board),
     unfilledBoard,
+    solvedBoard,
   };
+}
+
+export function toMetaBoard(board: Board): BoardWithMeta {
+  const metaBoard: BoardWithMeta = [];
+
+  for (let i = 0; i < 9; i++) {
+    const row = [];
+    for (let j = 0; j < 9; j++) {
+      row.push({
+        value: board[i][j],
+        highlighted: false,
+        notes: [],
+        selected: false,
+        valid: board[i][j] !== 0 ? true : false,
+        editable: board[i][j] === 0 ? true : false,
+      });
+    }
+    metaBoard.push(row);
+  }
+
+  return metaBoard;
 }
 
 export function copyBoard(board: Board): Board {
   return board.map((row) => [...row]);
-}
-
-export function isNumberComplete(board: Board, num: number): boolean {
-  let instances = 0;
-
-  // loop through each row and column
-  // 1. check if value is valid
-  // 2. increment instances if value of cell is equal to value
-  // 3. return true if instances is equal to 9
-  for (let i = 0; i < 9; i++) {
-    for (let j = 0; j < 9; j++) {
-      if (board[i][j] === num) {
-        instances++;
-      }
-    }
-  }
-
-  return instances === 9;
 }

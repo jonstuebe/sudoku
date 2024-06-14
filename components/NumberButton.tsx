@@ -12,16 +12,16 @@ export const NumberButton = observer(function NumberButton({
   children: number;
 }) {
   const { colors, dark } = useTheme();
-  const selectedCell = $store.selectedCell.get();
-  const controlsDisabled = !selectedCell;
+  const cellSelected = $store.cellSelected.get();
+  const controlsDisabled = !cellSelected;
   const numberComplete = $store.isNumberComplete(num);
   const mode = $store.mode.get();
   const disabled =
-    mode === "notes" && selectedCell
+    mode === "notes" && cellSelected
       ? false
       : controlsDisabled || numberComplete;
-  const selectedCellNotes = selectedCell
-    ? $store.notes.get().get(selectedCell)
+  const cellSelectedNotes = cellSelected
+    ? $store.board[cellSelected[0]][cellSelected[1]].notes.get()
     : [];
 
   return (
@@ -38,7 +38,7 @@ export const NumberButton = observer(function NumberButton({
           justifyContent: "center",
           alignItems: "center",
         },
-        mode === "notes" && selectedCellNotes && selectedCellNotes.includes(num)
+        mode === "notes" && cellSelectedNotes && cellSelectedNotes.includes(num)
           ? {
               borderColor: colors.primary,
             }
@@ -68,10 +68,10 @@ export const NumberButton = observer(function NumberButton({
       onPress={() => {
         switch (mode) {
           case "normal":
-            $store.setValue(selectedCell, num);
+            $store.setValue(cellSelected, num);
             break;
           case "notes":
-            $store.toggleNote(selectedCell, num);
+            $store.toggleNote(cellSelected, num);
             break;
         }
         Haptics.selectionAsync();

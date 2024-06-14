@@ -1,19 +1,19 @@
-import { observable } from "@legendapp/state";
-import { copyBoard, getBoards, isNumberComplete } from "./logic";
-import { Board, Difficulty, WinningAnimation } from "./types";
+import { Observable, computed, observable } from "@legendapp/state";
+import { copyBoard, getBoards, toMetaBoard } from "./logic";
+import { Board, BoardWithMeta, Difficulty, WinningAnimation } from "./types";
 
 export type CellCoords = [number, number];
 export type CellNotes = number[];
 
 interface Store {
-  selectedCell?: CellCoords;
-  highlightedCells: CellCoords[];
-  notes: Map<CellCoords, CellNotes>;
   mode: "normal" | "notes";
+
+  cellSelected: Observable<CellCoords | undefined>;
+  cellsHighlighted: number | undefined;
   /**
    * Current board (contains user values)
    */
-  board: Board;
+  board: BoardWithMeta;
   /**
    * Board with only unfilled cells (used for resetting the board)
    */
@@ -31,10 +31,7 @@ interface Store {
 
   resetBoard: VoidFunction;
   newGame: (difficulty: Difficulty) => void;
-  displayNumber: (value: number) => void;
-  isCellHighlighted: (coords: CellCoords) => boolean;
-  isCellValid: (coords: CellCoords) => boolean;
-  isCellEditable: (coords: CellCoords) => boolean;
+  setHighlighted: (value: number) => void;
   isNumberComplete: (value: number) => boolean;
   setValue: (coords: CellCoords | undefined, value: number) => void;
   setSelected: (coords: CellCoords) => void;
@@ -47,15 +44,29 @@ interface Store {
 }
 
 export const $store = observable<Store>({
-  selectedCell: undefined,
   mode: "normal",
   winningAnimation: "Stars",
-  notes: new Map<CellCoords, CellNotes>(),
-  highlightedCells: [],
+  cellSelected: computed((): CellCoords | undefined => {
+    let coords: CellCoords | undefined = undefined;
+
+    $store.board.map((row, rowIndex) => {
+      return row.map((cell, colIndex) => {
+        if (cell.selected.get() === true) {
+          coords = [rowIndex, colIndex];
+        }
+      });
+    });
+
+    return coords;
+  }),
+  cellsHighlighted: undefined,
+  startedAt: new Date(),
+  finishedAt: undefined,
+  showErrors: false,
   ...getBoards("easy"),
   resetBoard: () => {
     const unfilledBoard = $store.unfilledBoard.get();
-    $store.board.set(copyBoard(unfilledBoard));
+    $store.board.set(toMetaBoard(copyBoard(unfilledBoard)));
     $store.startedAt.set(new Date());
   },
   newGame: (difficulty: Difficulty) => {
@@ -65,43 +76,23 @@ export const $store = observable<Store>({
     $store.board.set(board);
     $store.unfilledBoard.set(unfilledBoard);
     $store.startedAt.set(new Date());
-    $store.selectedCell.set(undefined);
   },
   validateGame() {
     if ($store.isGameComplete()) {
       $store.gameComplete();
     }
   },
-  displayNumber: (value: number) => {
-    const highlightedCells: CellCoords[] = [];
-    const board = $store.board.get();
-
-    // loop through each row and column and check if cell value is equal to argument value
-    // if it is, set the cell to highlighted
-    for (let rowIndex = 0; rowIndex < 9; rowIndex++) {
-      for (let colIndex = 0; colIndex < 9; colIndex++) {
-        if (board[rowIndex][colIndex] === value) {
-          highlightedCells.push([rowIndex, colIndex]);
+  setHighlighted: (value: number) => {
+    $store.cellsHighlighted.set(value);
+    $store.board.map((row, rowIndex) => {
+      return row.map((cell, colIndex) => {
+        if (cell.value.get() === value && value !== 0) {
+          cell.highlighted.set(true);
+        } else {
+          cell.highlighted.set(false);
         }
-      }
-    }
-
-    $store.highlightedCells.set(highlightedCells);
-  },
-  isCellHighlighted(coords: CellCoords) {
-    let isCellHighlighted = false;
-    const highlightedCells = $store.highlightedCells.get();
-
-    highlightedCells.map((highlightedCell) => {
-      if (
-        highlightedCell[0] === coords[0] &&
-        highlightedCell[1] === coords[1]
-      ) {
-        isCellHighlighted = true;
-      }
+      });
     });
-
-    return isCellHighlighted;
   },
   isGameComplete() {
     const board = $store.board.get();
@@ -116,38 +107,25 @@ export const $store = observable<Store>({
   gameComplete() {
     $store.finishedAt.set(new Date());
   },
-  isCellValid: (coords: CellCoords) => {
-    const [row, col] = coords;
+  isNumberComplete: (value: number) => {
     const board = $store.board.get();
-    const value = board[row][col];
 
     if (value === 0) {
       return false;
     }
 
-    const solvedBoard = $store.solvedBoard.get();
+    let instances: number = 0;
 
-    if (value === solvedBoard[row][col]) {
-      return true;
+    // check to see if there are 9 instances of the value on the board
+    for (let i = 0; i < 9; i++) {
+      for (let j = 0; j < 9; j++) {
+        if (board[i][j].value === value) {
+          instances++;
+        }
+      }
     }
 
-    return false;
-  },
-  isCellEditable(coords) {
-    const [row, col] = coords;
-
-    const unfilledBoard = $store.unfilledBoard.get();
-
-    if (unfilledBoard[row][col] === 0) {
-      return true;
-    }
-
-    return false;
-  },
-  isNumberComplete: (value: number) => {
-    const board = $store.board.get();
-
-    if (isNumberComplete(board, value)) {
+    if (instances === 9) {
       return true;
     }
 
@@ -155,28 +133,50 @@ export const $store = observable<Store>({
   },
   setValue: (coords, value) => {
     if (!coords) return;
-    const highlightedCells = $store.highlightedCells.get();
-    const [row, col] = coords;
-    $store.board[row][col].set(value);
 
-    if (highlightedCells.length > 0 && $store.isCellValid(coords)) {
-      $store.displayNumber(value);
-    }
+    $store.board.map((row, rowIndex) => {
+      return row.map((cell, colIndex) => {
+        if (
+          rowIndex === coords[0] &&
+          colIndex === coords[1] &&
+          cell.editable.get() === true
+        ) {
+          cell.value.set(value);
+          cell.valid.set(
+            $store.solvedBoard[rowIndex][colIndex].get() === value
+          );
+
+          if ($store.cellsHighlighted.get() === value) {
+            $store.setHighlighted(value);
+          }
+        }
+      });
+    });
 
     $store.validateGame();
   },
   setSelected: (coords) => {
-    $store.selectedCell.set(coords);
-    // $store.highlightedCells.set([]);
+    $store.board.map((row, rowIndex) => {
+      return row.map((cell, colIndex) => {
+        if (rowIndex === coords[0] && colIndex === coords[1]) {
+          cell.selected.set(true);
+        } else {
+          cell.selected.set(false);
+        }
+      });
+    });
   },
   clearSelectedCell: () => {
-    const selectedCell = $store.selectedCell.get();
-
-    if (!selectedCell) return;
-
-    const [row, col] = selectedCell;
-
-    $store.board[row][col].set(0);
+    $store.board.map((row, rowIndex) => {
+      return row.map((cell, colIndex) => {
+        if (cell.selected.get() === true) {
+          cell.value.set(0);
+          if (cell.highlighted.get() === true) {
+            cell.highlighted.set(false);
+          }
+        }
+      });
+    });
   },
   toggleMode: () => {
     const mode = $store.mode.get();
@@ -185,20 +185,19 @@ export const $store = observable<Store>({
   toggleNote: (coords, note) => {
     if (!coords) return;
 
-    const notes = $store.notes.get();
-    const cellNotes = notes.get(coords) ?? [];
+    $store.board.map((row, rowIndex) => {
+      return row.map((cell, colIndex) => {
+        if (rowIndex === coords[0] && colIndex === coords[1]) {
+          const notes = cell.notes.get();
 
-    if (cellNotes.includes(note)) {
-      $store.notes.set(
-        coords,
-        cellNotes.filter((n) => n !== note)
-      );
-    } else {
-      $store.notes.set(coords, [...cellNotes, note].sort());
-    }
+          if (notes.includes(note)) {
+            cell.notes.set(notes.filter((n) => n !== note));
+          } else {
+            cell.notes.set([...notes, note].sort());
+          }
+        } else {
+        }
+      });
+    });
   },
-
-  startedAt: new Date(),
-
-  showErrors: false,
 });

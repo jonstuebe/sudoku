@@ -1,39 +1,35 @@
 import { observer } from "@legendapp/state/react";
 import { useTheme } from "@react-navigation/native";
-import { Pressable, PressableProps, TextStyle, View } from "react-native";
+import * as Haptics from "expo-haptics";
+import { Pressable, View } from "react-native";
+import { iOSColors } from "react-native-typography";
 import { ThemedText } from "../components/ThemedText";
 import { $store, CellCoords } from "../store";
-import { chunkArray } from "../utils";
-import * as Haptics from "expo-haptics";
-import { iOSColors } from "react-native-typography";
-import { useEffect, useMemo } from "react";
+import { chunkArray, getNotesArray } from "../utils";
 
 export const Cell = observer(function Cell({
-  children: num,
-  style,
-  textStyle,
   coords,
-  ...props
-}: Omit<PressableProps, "onPress" | "disabled"> & {
-  children: number;
-  textStyle?: Pick<TextStyle, "fontSize" | "lineHeight">;
+  value,
+  highlighted,
+  selected,
+  valid,
+  editable,
+  notes,
+}: {
   coords: CellCoords;
+  value: number;
+  highlighted: boolean;
+  selected: boolean;
+  valid: boolean;
+  editable: boolean;
+  notes: number[];
 }) {
   const { colors } = useTheme();
-  const selectedCell = $store.selectedCell.get();
-  const isHighlighted = $store.isCellHighlighted(coords);
-  const isSelected =
-    selectedCell &&
-    selectedCell[0] === coords[0] &&
-    selectedCell[1] === coords[1];
   const showErrors = $store.showErrors.get();
-  const isValid = !showErrors ? true : $store.isCellValid(coords);
-  const isEditable = $store.isCellEditable(coords);
-  const notes = $store.notes.get().get(coords) ?? [];
 
   return (
     <Pressable
-      style={(state) => [
+      style={({ pressed }) => [
         {
           aspectRatio: 1,
           borderRadius: 8,
@@ -44,51 +40,52 @@ export const Cell = observer(function Cell({
           justifyContent: "center",
           alignItems: "center",
         },
-        isSelected
+        selected
           ? {
               borderColor: colors.primary,
             }
           : undefined,
-        !isValid && num
+        !valid && value && showErrors
           ? {
               borderColor: colors.notification,
             }
           : undefined,
-        isHighlighted
+        highlighted
           ? {
               borderColor: iOSColors.green,
             }
           : undefined,
-        typeof style === "function" ? style(state) : style,
       ]}
       onPress={() => {
-        if (isEditable) {
+        if (editable) {
           $store.setSelected(coords);
+
+          if (value !== 0) {
+            $store.setHighlighted(value);
+          }
         } else {
-          $store.displayNumber(num);
+          $store.setHighlighted(value);
         }
         Haptics.selectionAsync();
       }}
-      {...props}
     >
-      {num !== 0 ? (
+      {value !== 0 ? (
         <ThemedText
           style={[
             {
               color: colors.text,
-              opacity: isEditable ? 1 : 0.6,
+              opacity: editable ? 1 : 0.6,
               fontSize: 20,
               lineHeight: 24,
               fontWeight: "bold",
             },
-            textStyle,
           ]}
         >
-          {num}
+          {value}
         </ThemedText>
       ) : (
         <View>
-          {chunkArray(notes, 3).map((chunk, chunkIndex) => {
+          {getNotesArray(notes).map((chunk, chunkIndex) => {
             return (
               <View
                 key={chunkIndex}
@@ -107,6 +104,7 @@ export const Cell = observer(function Cell({
                           fontSize: 9,
                           lineHeight: 10,
                           fontWeight: "500",
+                          opacity: note === 0 ? 0 : 1,
                         },
                       ]}
                     >

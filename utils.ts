@@ -1,5 +1,5 @@
 import type { CellCoords } from "./store";
-import type { Board } from "./types";
+import type { Board, BoardWithMeta, Cell } from "./types";
 
 export const correctSum = 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9;
 
@@ -31,7 +31,10 @@ export function checkColumn(board: Board, column: number): boolean {
   return true;
 }
 
-export function getBoxByCoords(board: Board, coords: CellCoords): number[][] {
+export function getBoxByCoords(
+  board: BoardWithMeta,
+  coords: CellCoords
+): Cell[][] {
   const [row, column] = coords;
   const boxRow: number = Math.floor(row / 3) * 3;
   const boxCol: number = Math.floor(column / 3) * 3;
@@ -41,7 +44,11 @@ export function getBoxByCoords(board: Board, coords: CellCoords): number[][] {
     .map((row) => row.slice(boxCol, boxCol + 3));
 }
 
-export function checkBox(board: Board, row: number, column: number): boolean {
+export function checkBox(
+  board: BoardWithMeta,
+  row: number,
+  column: number
+): boolean {
   const boxValues = getBoxByCoords(board, [row, column]);
 
   if (arraySum(boxValues.flatMap((row) => row)) !== correctSum) {
@@ -59,4 +66,46 @@ export function chunkArray<T>(array: T[], size: number): T[][] {
   return Array.from({ length: Math.ceil(array.length / size) }, (_, i) =>
     array.slice(i * size, i * size + size)
   );
+}
+
+export function getNotesArray(array: number[]): number[][] {
+  const notes = [
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
+  ];
+
+  array.forEach((value) => {
+    switch (value) {
+      case 1:
+        notes[0][0] = value;
+        break;
+      case 2:
+        notes[0][1] = value;
+        break;
+      case 3:
+        notes[0][2] = value;
+        break;
+      case 4:
+        notes[1][0] = value;
+        break;
+      case 5:
+        notes[1][1] = value;
+        break;
+      case 6:
+        notes[1][2] = value;
+        break;
+      case 7:
+        notes[2][0] = value;
+        break;
+      case 8:
+        notes[2][1] = value;
+        break;
+      case 9:
+        notes[2][2] = value;
+        break;
+    }
+  });
+
+  return notes;
 }

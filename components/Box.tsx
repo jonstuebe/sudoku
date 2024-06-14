@@ -4,12 +4,13 @@ import { iOSColors } from "react-native-typography";
 import { CellCoords } from "../store";
 import { Row } from "./Row";
 import { Cell } from "./Cell";
+import { Cell as CellType } from "../types";
 
 export function Box({
   values,
   startingCoords,
 }: {
-  values: number[][];
+  values: CellType[][];
   startingCoords: CellCoords;
 }) {
   const { dark } = useTheme();
@@ -28,14 +29,18 @@ export function Box({
     >
       {values.map((row, rowIndex) => (
         <Row key={rowIndex}>
-          {row.map((num, colIndex) => {
+          {row.map((cell, colIndex) => {
             return (
               <Cell
                 key={colIndex}
                 coords={[rowIndex + rowCoord, colIndex + colCoord]}
-              >
-                {num}
-              </Cell>
+                value={cell.value}
+                highlighted={cell.highlighted}
+                selected={cell.selected}
+                valid={cell.valid}
+                editable={cell.editable}
+                notes={cell.notes}
+              />
             );
           })}
         </Row>
