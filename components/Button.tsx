@@ -12,6 +12,7 @@ import { iOSColors, iOSUIKit } from "react-native-typography";
 
 export interface ButtonProps extends Omit<PressableProps, "style"> {
   color?: string;
+  variation?: "solid" | "outline";
   children: string | JSX.Element;
   isLoading?: boolean;
   style?: StyleProp<ViewStyle>;
@@ -19,6 +20,7 @@ export interface ButtonProps extends Omit<PressableProps, "style"> {
 
 export default function Button({
   children,
+  variation = "solid",
   color = iOSColors.blue,
   isLoading = false,
   disabled,
@@ -29,7 +31,19 @@ export default function Button({
     <Pressable
       style={({ pressed }) => [
         {
-          backgroundColor: pressed ? Color(color).lighten(0.2).hex() : color,
+          backgroundColor:
+            variation === "outline"
+              ? "transparent"
+              : pressed
+              ? Color(color).lighten(0.2).hex()
+              : color,
+          borderColor:
+            variation === "outline"
+              ? pressed
+                ? Color(color).lighten(0.2).hex()
+                : color
+              : "transparent",
+          borderWidth: variation === "outline" ? 2 : 0,
           borderRadius: 8,
           paddingHorizontal: 16,
           opacity: disabled || isLoading ? 0.5 : 1,

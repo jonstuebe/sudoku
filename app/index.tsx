@@ -8,7 +8,7 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { iOSUIKit } from "react-native-typography";
+import { iOSColors, iOSUIKit } from "react-native-typography";
 import * as Haptics from "expo-haptics";
 
 import { $clock } from "../clock";
@@ -18,6 +18,8 @@ import { Controls } from "../components/Controls";
 import { Header } from "../components/Header";
 import { ThemedText } from "../components/ThemedText";
 import { $store } from "../store";
+import { Motion } from "@legendapp/motion";
+import { FullScreenBanner } from "../components/FullScreenBanner";
 
 export default observer(function Game() {
   const { colors, dark } = useTheme();
@@ -51,12 +53,6 @@ export default observer(function Game() {
     };
   }, [gameStatus]);
 
-  useEffect(() => {
-    if (gameStatus === "complete") {
-      router.push("games");
-    }
-  }, [gameStatus]);
-
   return (
     <View style={{ flex: 1, position: "relative" }}>
       <SafeAreaView
@@ -76,53 +72,7 @@ export default observer(function Game() {
         </View>
         <View />
       </SafeAreaView>
-      {$clock.status.get() === "paused" ? (
-        <BlurView
-          intensity={10}
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            paddingHorizontal: 32,
-            justifyContent: "center",
-            gap: 8,
-            backgroundColor: dark ? "rgba(0,0,0,0.7)" : "rgba(255,255,255,0.7)",
-          }}
-        >
-          <ThemedText
-            style={[
-              iOSUIKit.largeTitleEmphasized,
-              {
-                textAlign: "center",
-                color: colors.text,
-              },
-            ]}
-          >
-            {$store.status.get() === "playing" ? "Game Paused" : "You Won!"}
-          </ThemedText>
-          {$store.status.get() === "playing" ? (
-            <Button
-              onPress={() => {
-                $clock.resume();
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              }}
-            >
-              Resume
-            </Button>
-          ) : (
-            <Button
-              onPress={() => {
-                $store.newGame();
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              }}
-            >
-              New Game
-            </Button>
-          )}
-        </BlurView>
-      ) : null}
+      <FullScreenBanner />
     </View>
   );
 });

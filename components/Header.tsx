@@ -66,7 +66,7 @@ export const Header = observer(function Header() {
         <Pressable
           disabled={hasPastGames}
           onPress={() => {
-            router.push("/games");
+            router.push("games");
           }}
           style={({ pressed }) => ({
             opacity: hasPastGames ? 0.5 : pressed ? 0.85 : 1,
