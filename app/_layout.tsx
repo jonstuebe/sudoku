@@ -1,20 +1,21 @@
+import { useColorScheme } from "@/hooks/useColorScheme";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   DarkTheme,
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
+import * as Haptics from "expo-haptics";
 import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
-import * as Haptics from "expo-haptics";
+import { ActionSheetIOS, Pressable } from "react-native";
+
 import "react-native-reanimated";
 
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { ActionSheetIOS, Pressable } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { $games } from "../games";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
