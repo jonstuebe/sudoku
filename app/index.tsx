@@ -1,30 +1,21 @@
 import { observer } from "@legendapp/state/react";
-import { useTheme } from "@react-navigation/native";
-import { BlurView } from "expo-blur";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect } from "react";
 import { AppState, View } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { iOSColors, iOSUIKit } from "react-native-typography";
-import * as Haptics from "expo-haptics";
 
 import { $clock } from "../clock";
 import { Board } from "../components/Board";
-import Button from "../components/Button";
 import { Controls } from "../components/Controls";
-import { Header } from "../components/Header";
-import { ThemedText } from "../components/ThemedText";
-import { $store } from "../store";
-import { Motion } from "@legendapp/motion";
 import { FullScreenBanner } from "../components/FullScreenBanner";
+import { Header } from "../components/Header";
+import { $store } from "../store";
 
 export default observer(function Game() {
-  const { colors, dark } = useTheme();
   const insets = useSafeAreaInsets();
-  const router = useRouter();
   const gameStatus = $store.status.get();
 
   useFocusEffect(
