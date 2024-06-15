@@ -229,6 +229,16 @@ export const $store = observable<Store>({
   },
 });
 
+$store.onChange(({ value }) => {
+  AsyncStorage.setItem("showErrors", value.showErrors ? "true" : "false");
+});
+
+AsyncStorage.getItem("showErrors").then((value) => {
+  if (value) {
+    $store.showErrors.set(value === "true");
+  }
+});
+
 registerDevMenuItems([
   {
     name: "Fill In Cells",
