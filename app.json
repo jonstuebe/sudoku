@@ -14,7 +14,8 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.jonstuebe.sudoku"
+      "bundleIdentifier": "com.jonstuebe.sudoku",
+      "buildNumber": "2"
     },
     "android": {
       "adaptiveIcon": {
