@@ -18,7 +18,16 @@
       "channel": "preview"
     },
     "prod": {
-      "channel": "production"
+      "channel": "production"      
+    }
+  },
+  "submit": {
+    "prod": {
+      "ios": {
+        "appleId": "jstuebe@gmail.com",
+        "ascAppId": "6504424161",
+        "appleTeamId": "5US3HNY357"
+      }
     }
   }
 }
