@@ -1,15 +1,16 @@
 import Icon from "@expo/vector-icons/Ionicons";
+import { Motion } from "@legendapp/motion";
+import { observer } from "@legendapp/state/react";
 import { MenuView } from "@react-native-menu/menu";
 import { useTheme } from "@react-navigation/native";
-import { ActionSheetIOS, Pressable, View } from "react-native";
-import { $store } from "../store";
-import { Difficulty, WinningAnimation } from "../types";
-import { Clock } from "./Clock";
 import * as Haptics from "expo-haptics";
-import { observer } from "@legendapp/state/react";
 import { useRouter } from "expo-router";
-import { $games } from "../games";
+import { ActionSheetIOS, Pressable, View } from "react-native";
 import { iOSColors } from "react-native-typography";
+import { $games } from "../games";
+import { $store } from "../store";
+import { Difficulty } from "../types";
+import { Clock } from "./Clock";
 
 export const Header = observer(function Header() {
   const { colors, dark } = useTheme();
@@ -18,7 +19,19 @@ export const Header = observer(function Header() {
   const difficulty = $store.difficulty.get();
 
   return (
-    <View
+    <Motion.View
+      initial={{
+        opacity: 0,
+        y: -40,
+      }}
+      animate={{
+        opacity: 1,
+        y: 0,
+      }}
+      transition={{
+        type: "spring",
+        overshootClamping: true,
+      }}
       style={{
         flexDirection: "row",
         alignItems: "center",
@@ -38,6 +51,9 @@ export const Header = observer(function Header() {
           onPress={() => {
             $store.showErrors.set(!$store.showErrors.get());
           }}
+          style={({ pressed }) => ({
+            opacity: pressed ? 0.85 : 1,
+          })}
         >
           <Icon
             name="alert-circle-outline"
@@ -52,9 +68,9 @@ export const Header = observer(function Header() {
           onPress={() => {
             router.push("/games");
           }}
-          style={{
-            opacity: hasPastGames ? 0.5 : 1,
-          }}
+          style={({ pressed }) => ({
+            opacity: hasPastGames ? 0.5 : pressed ? 0.85 : 1,
+          })}
         >
           <Icon name="time-outline" size={24} color={dark ? "#FFF" : "#777"} />
         </Pressable>
@@ -92,6 +108,9 @@ export const Header = observer(function Header() {
               }
             );
           }}
+          style={({ pressed }) => ({
+            opacity: pressed ? 0.85 : 1,
+          })}
         >
           <Icon
             name="refresh-circle-outline"
@@ -125,6 +144,6 @@ export const Header = observer(function Header() {
           <Icon size={24} name="add-circle" color={colors.primary} />
         </MenuView>
       </View>
-    </View>
+    </Motion.View>
   );
 });
