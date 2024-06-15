@@ -45,14 +45,14 @@ export const Cell = observer(function Cell({
               borderColor: colors.primary,
             }
           : undefined,
-        !valid && value && showErrors
-          ? {
-              borderColor: colors.notification,
-            }
-          : undefined,
         highlighted
           ? {
               borderColor: iOSColors.green,
+            }
+          : undefined,
+        !valid && value && showErrors
+          ? {
+              borderColor: colors.notification,
             }
           : undefined,
       ]}
