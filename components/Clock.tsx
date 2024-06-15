@@ -3,6 +3,7 @@ import { useTheme } from "@react-navigation/native";
 import { useEffect } from "react";
 import { $clock } from "../clock";
 import { ThemedText } from "../components/ThemedText";
+import { Pressable } from "react-native";
 
 export const Clock = observer(function Clock() {
   const { dark } = useTheme();
@@ -22,14 +23,25 @@ export const Clock = observer(function Clock() {
   }, [status]);
 
   return (
-    <ThemedText
-      style={{
-        textAlign: "center",
-        fontWeight: "600",
-        color: dark ? "#FFF" : "#555",
+    <Pressable
+      onPress={() => {
+        if (status === "running") {
+          $clock.pause();
+        } else {
+          $clock.resume();
+        }
       }}
+      style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
     >
-      {time}
-    </ThemedText>
+      <ThemedText
+        style={{
+          textAlign: "center",
+          fontWeight: "600",
+          color: dark ? "#FFF" : "#555",
+        }}
+      >
+        {time}
+      </ThemedText>
+    </Pressable>
   );
 });

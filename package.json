@@ -22,8 +22,10 @@
     "@react-native-menu/menu": "^1.1.0",
     "@react-native-segmented-control/segmented-control": "^2.5.2",
     "@react-navigation/native": "^6.0.2",
+    "color": "^4.2.3",
     "date-fns": "^3.6.0",
     "expo": "~51.0.9",
+    "expo-blur": "~13.0.2",
     "expo-constants": "~16.0.2",
     "expo-dev-client": "~4.0.15",
     "expo-dev-menu": "^5.0.15",
@@ -47,6 +49,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@types/color": "^3.0.6",
     "@types/jest": "^29.5.12",
     "@types/react": "~18.2.45",
     "@types/react-test-renderer": "^18.0.7",

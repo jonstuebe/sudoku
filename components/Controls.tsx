@@ -39,37 +39,34 @@ export const Controls = observer(function Controls() {
         <NumberButton>{7}</NumberButton>
         <NumberButton>{8}</NumberButton>
         <NumberButton>{9}</NumberButton>
-        <Pressable
-          style={({ pressed }) => [
-            {
-              aspectRatio: 5 / 3,
-              flex: 1,
-              alignItems: "center",
-              justifyContent: "center",
-              opacity:
-                mode === "notes" ? 0.5 : pressed && cellSelected ? 0.85 : 1,
-            },
-            !cellSelected || gameStatus === "complete"
-              ? {
-                  opacity: 0.5,
-                }
-              : undefined,
-          ]}
-          disabled={
-            gameStatus === "complete"
-              ? true
-              : mode === "notes"
-              ? true
-              : !cellSelected
-          }
-          onPress={() => {
-            $store.clearSelectedCell();
-            Haptics.selectionAsync();
-          }}
-          hitSlop={8}
-        >
-          <Icon name="backspace" color={colors.text} size={28} />
-        </Pressable>
+        {mode === "normal" ? (
+          <Pressable
+            style={({ pressed }) => [
+              {
+                aspectRatio: 5 / 3,
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
+                opacity: pressed && cellSelected ? 0.85 : 1,
+              },
+              !cellSelected || gameStatus === "complete"
+                ? {
+                    opacity: 0.5,
+                  }
+                : undefined,
+            ]}
+            disabled={gameStatus === "complete" ? true : false}
+            onPress={() => {
+              $store.clearSelectedCell();
+              Haptics.selectionAsync();
+            }}
+            hitSlop={8}
+          >
+            <Icon name="backspace" color={colors.text} size={28} />
+          </Pressable>
+        ) : (
+          <View style={{ aspectRatio: 5 / 3, flex: 1 }} />
+        )}
       </Row>
     </View>
   );
