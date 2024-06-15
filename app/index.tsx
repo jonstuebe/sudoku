@@ -1,21 +1,23 @@
+import { observer } from "@legendapp/state/react";
+import { useTheme } from "@react-navigation/native";
+import { BlurView } from "expo-blur";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useEffect } from "react";
 import { AppState, View } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
+import { iOSUIKit } from "react-native-typography";
+import * as Haptics from "expo-haptics";
+
+import { $clock } from "../clock";
 import { Board } from "../components/Board";
+import Button from "../components/Button";
 import { Controls } from "../components/Controls";
 import { Header } from "../components/Header";
-import { useFocusEffect, useRouter } from "expo-router";
-import { $store } from "../store";
-import { observer } from "@legendapp/state/react";
-import { useCallback, useEffect } from "react";
-import { $clock } from "../clock";
 import { ThemedText } from "../components/ThemedText";
-import Button from "../components/Button";
-import { iOSUIKit } from "react-native-typography";
-import { useTheme } from "@react-navigation/native";
-import { BlurView } from "expo-blur";
+import { $store } from "../store";
 
 export default observer(function Game() {
   const { colors, dark } = useTheme();
@@ -98,9 +100,27 @@ export default observer(function Game() {
               },
             ]}
           >
-            Game Paused
+            {$store.status.get() === "playing" ? "Game Paused" : "You Won!"}
           </ThemedText>
-          <Button onPress={() => $clock.resume()}>Resume</Button>
+          {$store.status.get() === "playing" ? (
+            <Button
+              onPress={() => {
+                $clock.resume();
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              }}
+            >
+              Resume
+            </Button>
+          ) : (
+            <Button
+              onPress={() => {
+                $store.newGame();
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              }}
+            >
+              New Game
+            </Button>
+          )}
         </BlurView>
       ) : null}
     </View>

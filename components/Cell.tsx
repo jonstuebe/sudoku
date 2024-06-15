@@ -59,13 +59,22 @@ export const Cell = observer(function Cell({
       onPress={() => {
         if (editable) {
           $store.setSelected(coords);
+
+          if (value !== 0) {
+            if (highlighted) {
+              $store.setHighlighted(0);
+            } else {
+              $store.setHighlighted(value);
+            }
+          }
+        } else {
+          if (highlighted) {
+            $store.setHighlighted(0);
+          } else {
+            $store.setHighlighted(value);
+          }
         }
 
-        if (highlighted) {
-          $store.setHighlighted(0);
-        } else {
-          $store.setHighlighted(value);
-        }
         Haptics.selectionAsync();
       }}
     >

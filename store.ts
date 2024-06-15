@@ -35,7 +35,7 @@ interface Store {
   winningAnimation: WinningAnimation;
 
   resetBoard: VoidFunction;
-  newGame: (difficulty: Difficulty) => void;
+  newGame: (difficulty?: Difficulty) => void;
   setHighlighted: (value: number) => void;
   isNumberComplete: (value: number) => boolean;
   setValue: (coords: CellCoords | undefined, value: number) => void;
@@ -77,7 +77,10 @@ export const $store = observable<Store>({
     $store.startedAt.set(new Date());
     $clock.reset();
   },
-  newGame: (difficulty: Difficulty) => {
+  newGame: (difficulty?: Difficulty) => {
+    if (difficulty === undefined) {
+      difficulty = $store.difficulty.get();
+    }
     const { board, solvedBoard, unfilledBoard } = getBoards(difficulty);
 
     $store.difficulty.set(difficulty);
