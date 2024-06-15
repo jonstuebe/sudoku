@@ -94,7 +94,12 @@ export const $store = observable<Store>({
     }
   },
   setHighlighted: (value: number) => {
-    $store.cellsHighlighted.set(value);
+    if (value === 0) {
+      $store.cellsHighlighted.set(undefined);
+    } else {
+      $store.cellsHighlighted.set(value);
+    }
+
     $store.board.map((row, rowIndex) => {
       return row.map((cell, colIndex) => {
         if (cell.value.get() === value && value !== 0) {
@@ -105,6 +110,7 @@ export const $store = observable<Store>({
       });
     });
   },
+
   isGameComplete() {
     const board = $store.board.get();
     const solvedBoard = $store.solvedBoard.get();

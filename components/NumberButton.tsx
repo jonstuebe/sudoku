@@ -4,6 +4,7 @@ import { $store } from "../store";
 import { observer } from "@legendapp/state/react";
 import { ThemedText } from "./ThemedText";
 import * as Haptics from "expo-haptics";
+import { iOSColors } from "react-native-typography";
 
 export const NumberButton = observer(function NumberButton({
   children: num,
@@ -17,6 +18,7 @@ export const NumberButton = observer(function NumberButton({
   const controlsDisabled = !cellSelected;
   const numberComplete = $store.isNumberComplete(num);
   const mode = $store.mode.get();
+  const highlighted = $store.cellsHighlighted.get() === num;
   const disabled =
     gameStatus === "complete"
       ? true
@@ -56,6 +58,11 @@ export const NumberButton = observer(function NumberButton({
           // disabled styles
           opacity: disabled ? 0.5 : 1,
         },
+        highlighted
+          ? {
+              borderColor: iOSColors.green,
+            }
+          : undefined,
         !dark
           ? {
               shadowColor: "#000",
@@ -69,6 +76,7 @@ export const NumberButton = observer(function NumberButton({
           : undefined,
       ]}
       onPress={() => {
+        if (disabled) return;
         switch (mode) {
           case "normal":
             $store.setValue(cellSelected, num);
@@ -78,6 +86,13 @@ export const NumberButton = observer(function NumberButton({
             break;
         }
         Haptics.selectionAsync();
+      }}
+      onLongPress={() => {
+        if (highlighted) {
+          $store.setHighlighted(0);
+        } else {
+          $store.setHighlighted(num);
+        }
       }}
       {...props}
     >
