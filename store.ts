@@ -1,7 +1,10 @@
-import { Observable, computed, observable } from "@legendapp/state";
+import { observable } from "@legendapp/state";
+import { registerDevMenuItems } from "expo-dev-menu";
 import { copyBoard, fromMetaBoard, getBoards, toMetaBoard } from "./logic";
 import { Board, BoardWithMeta, Difficulty, WinningAnimation } from "./types";
-import { registerDevMenuItems } from "expo-dev-menu";
+import { $games } from "./games";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { $clock } from "./clock";
 
 export type CellCoords = [number, number];
 export type CellNotes = number[];
@@ -9,7 +12,8 @@ export type CellNotes = number[];
 interface Store {
   mode: "normal" | "notes";
 
-  cellSelected: Observable<CellCoords | undefined>;
+  difficulty: Difficulty;
+  cellSelected: CellCoords | undefined;
   cellsHighlighted: number | undefined;
   /**
    * Current board (contains user values)
@@ -23,8 +27,8 @@ interface Store {
    * Solved board
    */
   solvedBoard: Board;
-  startedAt?: Date;
-  finishedAt?: Date;
+  status: "playing" | "complete";
+  startedAt: Date;
 
   // settings
   showErrors: boolean;
@@ -39,7 +43,7 @@ interface Store {
   toggleNote: (coords: CellCoords | undefined, note: number) => void;
   clearSelectedCell: VoidFunction;
   toggleMode: VoidFunction;
-  gameComplete: VoidFunction;
+  markGameAsComplete: VoidFunction;
   isGameComplete: () => boolean;
   validateGame: VoidFunction;
 }
@@ -47,7 +51,8 @@ interface Store {
 export const $store = observable<Store>({
   mode: "normal",
   winningAnimation: "Stars",
-  cellSelected: computed((): CellCoords | undefined => {
+  difficulty: "easy",
+  cellSelected: () => {
     let coords: CellCoords | undefined = undefined;
 
     $store.board.map((row, rowIndex) => {
@@ -59,29 +64,33 @@ export const $store = observable<Store>({
     });
 
     return coords;
-  }),
+  },
   cellsHighlighted: undefined,
+  status: "playing",
   startedAt: new Date(),
-  finishedAt: undefined,
   showErrors: false,
   ...getBoards("easy"),
   resetBoard: () => {
     const unfilledBoard = $store.unfilledBoard.get();
     $store.board.set(toMetaBoard(copyBoard(unfilledBoard)));
+    $store.status.set("playing");
     $store.startedAt.set(new Date());
-    $store.finishedAt.set(undefined);
+    $clock.reset();
   },
   newGame: (difficulty: Difficulty) => {
     const { board, solvedBoard, unfilledBoard } = getBoards(difficulty);
 
+    $store.difficulty.set(difficulty);
     $store.solvedBoard.set(solvedBoard);
     $store.board.set(board);
     $store.unfilledBoard.set(unfilledBoard);
+    $store.status.set("playing");
     $store.startedAt.set(new Date());
+    $clock.reset();
   },
   validateGame() {
     if ($store.isGameComplete()) {
-      $store.gameComplete();
+      $store.markGameAsComplete();
     }
   },
   setHighlighted: (value: number) => {
@@ -106,8 +115,18 @@ export const $store = observable<Store>({
 
     return false;
   },
-  gameComplete() {
-    $store.finishedAt.set(new Date());
+  markGameAsComplete() {
+    const difficulty = $store.difficulty.get();
+    const time = $clock.time.get();
+    const startedAt = $store.startedAt.get();
+
+    $clock.pause();
+    $games.addGame({
+      difficulty,
+      time,
+      startedAt,
+    });
+    $store.status.set("complete");
   },
   isNumberComplete: (value: number) => {
     const board = $store.board.get();
@@ -210,8 +229,14 @@ registerDevMenuItems([
     callback: () => {
       const solvedBoard = copyBoard($store.solvedBoard.get());
       solvedBoard[0][0] = 0;
-
       $store.board.set(toMetaBoard(solvedBoard));
+    },
+  },
+  {
+    name: "Clear Previous Games",
+    callback: () => {
+      AsyncStorage.removeItem("games");
+      $games.games.set([]);
     },
   },
 ]);

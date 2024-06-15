@@ -1,42 +1,25 @@
 import { observer } from "@legendapp/state/react";
-import { differenceInSeconds } from "date-fns";
-import { useEffect, useState } from "react";
-import { ThemedText } from "../components/ThemedText";
-import { $store } from "../store";
 import { useTheme } from "@react-navigation/native";
+import { useEffect } from "react";
+import { $clock } from "../clock";
+import { ThemedText } from "../components/ThemedText";
 
 export const Clock = observer(function Clock() {
   const { dark } = useTheme();
-  const [text, setText] = useState("");
-  const startedAt = $store.startedAt.get();
+  const time = $clock.time.get();
+  const status = $clock.status.get();
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (startedAt) {
-        const now = new Date();
-        const seconds = differenceInSeconds(now, startedAt);
-        const minutes = Math.floor(seconds / 60);
-        const hours = Math.floor(minutes / 60);
-
-        if (hours === 0) {
-          setText(
-            `${String(minutes % 60).padStart(2, "0")}:${String(
-              seconds % 60
-            ).padStart(2, "0")}`
-          );
-        } else {
-          setText(
-            `${String(hours).padStart(2, "0")}:${String(minutes % 60).padStart(
-              2,
-              "0"
-            )}:${String(seconds % 60).padStart(2, "0")}`
-          );
-        }
+      if (status === "running") {
+        $clock.tick();
       }
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [startedAt]);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [status]);
 
   return (
     <ThemedText
@@ -46,7 +29,7 @@ export const Clock = observer(function Clock() {
         color: dark ? "#FFF" : "#555",
       }}
     >
-      {text}
+      {time}
     </ThemedText>
   );
 });

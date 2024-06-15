@@ -10,10 +10,11 @@ import * as Haptics from "expo-haptics";
 
 export const Controls = observer(function Controls() {
   const { colors } = useTheme();
+  const gameStatus = $store.status.get();
   const cellSelected = $store.cellSelected.get();
-  const cellSelectedValue = cellSelected
-    ? $store.board.get()[cellSelected[0]]?.[cellSelected[1]]
-    : undefined;
+  // const cellSelectedValue = cellSelected
+  //   ? $store.board.get()[cellSelected[0]]?.[cellSelected[1]]
+  //   : undefined;
 
   const mode = $store.mode.get();
 
@@ -48,13 +49,19 @@ export const Controls = observer(function Controls() {
               opacity:
                 mode === "notes" ? 0.5 : pressed && cellSelected ? 0.85 : 1,
             },
-            !cellSelected
+            !cellSelected || gameStatus === "complete"
               ? {
                   opacity: 0.5,
                 }
               : undefined,
           ]}
-          disabled={mode === "notes" ? true : !cellSelected}
+          disabled={
+            gameStatus === "complete"
+              ? true
+              : mode === "notes"
+              ? true
+              : !cellSelected
+          }
           onPress={() => {
             $store.clearSelectedCell();
             Haptics.selectionAsync();

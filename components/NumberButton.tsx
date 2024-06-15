@@ -12,12 +12,15 @@ export const NumberButton = observer(function NumberButton({
   children: number;
 }) {
   const { colors, dark } = useTheme();
+  const gameStatus = $store.status.get();
   const cellSelected = $store.cellSelected.get();
   const controlsDisabled = !cellSelected;
   const numberComplete = $store.isNumberComplete(num);
   const mode = $store.mode.get();
   const disabled =
-    mode === "notes" && cellSelected
+    gameStatus === "complete"
+      ? true
+      : mode === "notes" && cellSelected
       ? false
       : controlsDisabled || numberComplete;
   const cellSelectedNotes = cellSelected
