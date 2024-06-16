@@ -7,25 +7,25 @@ import {
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 
-import { $clock } from "../clock";
+import { clock$ } from "../clock";
 import { Board } from "../components/Board";
 import { Controls } from "../components/Controls";
 import { FullScreenBanner } from "../components/FullScreenBanner";
 import { Header } from "../components/Header";
-import { $store } from "../store";
+import { store$ } from "../store";
 
 export default observer(function Game() {
   const insets = useSafeAreaInsets();
-  const gameStatus = $store.status.get();
+  const gameStatus = store$.status.get();
 
   useFocusEffect(
     useCallback(() => {
       if (gameStatus === "playing") {
-        $clock.resume();
+        clock$.resume();
       }
 
       return () => {
-        $clock.pause();
+        clock$.pause();
       };
     }, [gameStatus])
   );
@@ -33,9 +33,9 @@ export default observer(function Game() {
   useEffect(() => {
     const listener = AppState.addEventListener("change", (state) => {
       if (state !== "active") {
-        $clock.pause();
+        clock$.pause();
       } else if (gameStatus === "playing") {
-        $clock.resume();
+        clock$.resume();
       }
     });
 

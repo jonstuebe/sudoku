@@ -1,8 +1,8 @@
 import { observable } from "@legendapp/state";
-
-import { differenceInSeconds, parseISO } from "date-fns";
-import { Difficulty } from "./types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { parseISO } from "date-fns";
+
+import type { Difficulty } from "./types";
 
 export type Game = {
   difficulty: Difficulty;
@@ -19,20 +19,20 @@ export type Games = {
   removeGame: (game: Game) => void;
 };
 
-export const $games = observable<Games>({
+export const games$ = observable<Games>({
   selectedDifficulty: "easy",
   games: [],
   sortedGames: () => {
-    return $games.games
+    return games$.games
       .get()
       .sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime());
   },
   addGame: (game) => {
-    $games.games.push(game);
-    $games.selectedDifficulty.set(game.difficulty);
+    games$.games.push(game);
+    games$.selectedDifficulty.set(game.difficulty);
   },
   removeGame: (game) => {
-    $games.games
+    games$.games
       .find((g) => {
         return (
           g.difficulty.get() === game.difficulty && g.time.get() === game.time
@@ -40,13 +40,10 @@ export const $games = observable<Games>({
       })
       ?.delete();
   },
-  // getGameLength(game) {
-  //   return getGameLength(game);
-  // },
 });
 
 syncGames();
-$games.onChange(({ value: { games } }) => {
+games$.onChange(({ value: { games } }) => {
   const serialized = games.map((game) => {
     return {
       difficulty: game.difficulty,
@@ -70,7 +67,7 @@ async function syncGames() {
         };
       });
 
-      $games.games.set(games);
+      games$.games.set(games);
     }
   } catch (e) {
     console.log(e);

@@ -1,19 +1,19 @@
 import { observer } from "@legendapp/state/react";
 import { useTheme } from "@react-navigation/native";
 import { useEffect } from "react";
-import { $clock } from "../clock";
+import { clock$ } from "../clock";
 import { ThemedText } from "../components/ThemedText";
 import { Pressable } from "react-native";
 
 export const Clock = observer(function Clock() {
   const { dark } = useTheme();
-  const time = $clock.time.get();
-  const status = $clock.status.get();
+  const time = clock$.time.get();
+  const status = clock$.status.get();
 
   useEffect(() => {
     const interval = setInterval(() => {
       if (status === "running") {
-        $clock.tick();
+        clock$.tick();
       }
     }, 1000);
 
@@ -26,9 +26,9 @@ export const Clock = observer(function Clock() {
     <Pressable
       onPress={() => {
         if (status === "running") {
-          $clock.pause();
+          clock$.pause();
         } else {
-          $clock.resume();
+          clock$.resume();
         }
       }}
       style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}

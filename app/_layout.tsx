@@ -15,7 +15,7 @@ import { ActionSheetIOS, Pressable } from "react-native";
 
 import "react-native-reanimated";
 
-import { $games } from "../games";
+import { games$ } from "../games";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -59,7 +59,7 @@ export default function RootLayout() {
                       },
                       (index) => {
                         if (index === 1) {
-                          $games.games.set([]);
+                          games$.games.set([]);
                           AsyncStorage.removeItem("games");
                           router.canDismiss() && router.back();
                           Haptics.impactAsync(

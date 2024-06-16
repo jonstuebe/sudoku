@@ -1,9 +1,9 @@
 import { observable } from "@legendapp/state";
-import { $clock, Clock } from "./clock";
+import { clock$, Clock } from "./clock";
 
 describe("$clock", () => {
   it("ticks properly", () => {
-    const clock = observable<Clock>($clock);
+    const clock = observable<Clock>(clock$);
 
     expect(clock.peek().hours).toBe(0);
     expect(clock.peek().minutes).toBe(0);

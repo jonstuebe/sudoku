@@ -2,7 +2,7 @@ import Icon from "@expo/vector-icons/Ionicons";
 import { observer } from "@legendapp/state/react";
 import { useTheme } from "@react-navigation/native";
 import { Pressable, View } from "react-native";
-import { $store } from "../store";
+import { store$ } from "../store";
 import { Row } from "./Row";
 import { NumberButton } from "./NumberButton";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
@@ -10,13 +10,13 @@ import * as Haptics from "expo-haptics";
 
 export const Controls = observer(function Controls() {
   const { colors } = useTheme();
-  const gameStatus = $store.status.get();
-  const cellSelected = $store.cellSelected.get();
+  const gameStatus = store$.status.get();
+  const cellSelected = store$.cellSelected.get();
   // const cellSelectedValue = cellSelected
   //   ? $store.board.get()[cellSelected[0]]?.[cellSelected[1]]
   //   : undefined;
 
-  const mode = $store.mode.get();
+  const mode = store$.mode.get();
 
   return (
     <View style={{ gap: 8 }}>
@@ -24,7 +24,7 @@ export const Controls = observer(function Controls() {
         selectedIndex={mode === "notes" ? 1 : 0}
         values={["Normal", "Notes"]}
         onValueChange={(value) =>
-          $store.mode.set(value.toLowerCase() as "normal" | "notes")
+          store$.mode.set(value.toLowerCase() as "normal" | "notes")
         }
       />
       <Row gap={4}>
@@ -57,7 +57,7 @@ export const Controls = observer(function Controls() {
             ]}
             disabled={gameStatus === "complete" ? true : false}
             onPress={() => {
-              $store.clearSelectedCell();
+              store$.clearSelectedCell();
               Haptics.selectionAsync();
             }}
             hitSlop={8}

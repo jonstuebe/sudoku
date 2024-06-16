@@ -1,10 +1,11 @@
 import { observable } from "@legendapp/state";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { registerDevMenuItems } from "expo-dev-menu";
+
+import { clock$ } from "./clock";
+import { games$ } from "./games";
 import { copyBoard, fromMetaBoard, getBoards, toMetaBoard } from "./logic";
 import { Board, BoardWithMeta, Difficulty, WinningAnimation } from "./types";
-import { $games } from "./games";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { $clock } from "./clock";
 
 export type CellCoords = [number, number];
 export type CellNotes = number[];
@@ -48,14 +49,14 @@ interface Store {
   validateGame: VoidFunction;
 }
 
-export const $store = observable<Store>({
+export const store$ = observable<Store>({
   mode: "normal",
   winningAnimation: "Stars",
   difficulty: "easy",
   cellSelected: () => {
     let coords: CellCoords | undefined = undefined;
 
-    $store.board.map((row, rowIndex) => {
+    store$.board.map((row, rowIndex) => {
       return row.map((cell, colIndex) => {
         if (cell.selected.get() === true) {
           coords = [rowIndex, colIndex];
@@ -71,39 +72,39 @@ export const $store = observable<Store>({
   showErrors: false,
   ...getBoards("easy"),
   resetBoard: () => {
-    const unfilledBoard = $store.unfilledBoard.get();
-    $store.board.set(toMetaBoard(copyBoard(unfilledBoard)));
-    $store.status.set("playing");
-    $store.startedAt.set(new Date());
-    $clock.reset();
+    const unfilledBoard = store$.unfilledBoard.get();
+    store$.board.set(toMetaBoard(copyBoard(unfilledBoard)));
+    store$.status.set("playing");
+    store$.startedAt.set(new Date());
+    clock$.reset();
   },
   newGame: (difficulty?: Difficulty) => {
     if (difficulty === undefined) {
-      difficulty = $store.difficulty.get();
+      difficulty = store$.difficulty.get();
     }
     const { board, solvedBoard, unfilledBoard } = getBoards(difficulty);
 
-    $store.difficulty.set(difficulty);
-    $store.solvedBoard.set(solvedBoard);
-    $store.board.set(board);
-    $store.unfilledBoard.set(unfilledBoard);
-    $store.status.set("playing");
-    $store.startedAt.set(new Date());
-    $clock.reset();
+    store$.difficulty.set(difficulty);
+    store$.solvedBoard.set(solvedBoard);
+    store$.board.set(board);
+    store$.unfilledBoard.set(unfilledBoard);
+    store$.status.set("playing");
+    store$.startedAt.set(new Date());
+    clock$.reset();
   },
   validateGame() {
-    if ($store.isGameComplete()) {
-      $store.markGameAsComplete();
+    if (store$.isGameComplete()) {
+      store$.markGameAsComplete();
     }
   },
   setHighlighted: (value: number) => {
     if (value === 0) {
-      $store.cellsHighlighted.set(undefined);
+      store$.cellsHighlighted.set(undefined);
     } else {
-      $store.cellsHighlighted.set(value);
+      store$.cellsHighlighted.set(value);
     }
 
-    $store.board.map((row, rowIndex) => {
+    store$.board.map((row, rowIndex) => {
       return row.map((cell, colIndex) => {
         if (cell.value.get() === value && value !== 0) {
           cell.highlighted.set(true);
@@ -115,8 +116,8 @@ export const $store = observable<Store>({
   },
 
   isGameComplete() {
-    const board = $store.board.get();
-    const solvedBoard = $store.solvedBoard.get();
+    const board = store$.board.get();
+    const solvedBoard = store$.solvedBoard.get();
 
     if (JSON.stringify(fromMetaBoard(board)) === JSON.stringify(solvedBoard)) {
       return true;
@@ -125,20 +126,20 @@ export const $store = observable<Store>({
     return false;
   },
   markGameAsComplete() {
-    const difficulty = $store.difficulty.get();
-    const time = $clock.time.get();
-    const startedAt = $store.startedAt.get();
+    const difficulty = store$.difficulty.get();
+    const time = clock$.time.get();
+    const startedAt = store$.startedAt.get();
 
-    $clock.pause();
-    $games.addGame({
+    clock$.pause();
+    games$.addGame({
       difficulty,
       time,
       startedAt,
     });
-    $store.status.set("complete");
+    store$.status.set("complete");
   },
   isNumberComplete: (value: number) => {
-    const board = $store.board.get();
+    const board = store$.board.get();
 
     if (value === 0) {
       return false;
@@ -164,7 +165,7 @@ export const $store = observable<Store>({
   setValue: (coords, value) => {
     if (!coords) return;
 
-    $store.board.map((row, rowIndex) => {
+    store$.board.map((row, rowIndex) => {
       return row.map((cell, colIndex) => {
         if (
           rowIndex === coords[0] &&
@@ -173,20 +174,20 @@ export const $store = observable<Store>({
         ) {
           cell.value.set(value);
           cell.valid.set(
-            $store.solvedBoard[rowIndex][colIndex].get() === value
+            store$.solvedBoard[rowIndex][colIndex].get() === value
           );
 
-          if ($store.cellsHighlighted.get() === value) {
-            $store.setHighlighted(value);
+          if (store$.cellsHighlighted.get() === value) {
+            store$.setHighlighted(value);
           }
         }
       });
     });
 
-    $store.validateGame();
+    store$.validateGame();
   },
   setSelected: (coords) => {
-    $store.board.map((row, rowIndex) => {
+    store$.board.map((row, rowIndex) => {
       return row.map((cell, colIndex) => {
         if (rowIndex === coords[0] && colIndex === coords[1]) {
           cell.selected.set(true);
@@ -197,7 +198,7 @@ export const $store = observable<Store>({
     });
   },
   clearSelectedCell: () => {
-    $store.board.map((row, rowIndex) => {
+    store$.board.map((row, rowIndex) => {
       return row.map((cell, colIndex) => {
         if (cell.selected.get() === true) {
           cell.value.set(0);
@@ -209,13 +210,13 @@ export const $store = observable<Store>({
     });
   },
   toggleMode: () => {
-    const mode = $store.mode.get();
-    $store.mode.set(mode === "normal" ? "notes" : "normal");
+    const mode = store$.mode.get();
+    store$.mode.set(mode === "normal" ? "notes" : "normal");
   },
   toggleNote: (coords, note) => {
     if (!coords) return;
 
-    $store.board.map((row, rowIndex) => {
+    store$.board.map((row, rowIndex) => {
       return row.map((cell, colIndex) => {
         if (rowIndex === coords[0] && colIndex === coords[1]) {
           const notes = cell.notes.get();
@@ -232,13 +233,13 @@ export const $store = observable<Store>({
   },
 });
 
-$store.onChange(({ value }) => {
+store$.onChange(({ value }) => {
   AsyncStorage.setItem("showErrors", value.showErrors ? "true" : "false");
 });
 
 AsyncStorage.getItem("showErrors").then((value) => {
   if (value) {
-    $store.showErrors.set(value === "true");
+    store$.showErrors.set(value === "true");
   }
 });
 
@@ -246,16 +247,16 @@ registerDevMenuItems([
   {
     name: "Fill In Cells",
     callback: () => {
-      const solvedBoard = copyBoard($store.solvedBoard.get());
+      const solvedBoard = copyBoard(store$.solvedBoard.get());
       solvedBoard[0][0] = 0;
-      $store.board.set(toMetaBoard(solvedBoard));
+      store$.board.set(toMetaBoard(solvedBoard));
     },
   },
   {
     name: "Clear Previous Games",
     callback: () => {
       AsyncStorage.removeItem("games");
-      $games.games.set([]);
+      games$.games.set([]);
     },
   },
 ]);

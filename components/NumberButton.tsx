@@ -1,6 +1,6 @@
 import { useTheme } from "@react-navigation/native";
 import { Pressable, PressableProps } from "react-native";
-import { $store } from "../store";
+import { store$ } from "../store";
 import { observer } from "@legendapp/state/react";
 import { ThemedText } from "./ThemedText";
 import * as Haptics from "expo-haptics";
@@ -13,12 +13,12 @@ export const NumberButton = observer(function NumberButton({
   children: number;
 }) {
   const { colors, dark } = useTheme();
-  const gameStatus = $store.status.get();
-  const cellSelected = $store.cellSelected.get();
+  const gameStatus = store$.status.get();
+  const cellSelected = store$.cellSelected.get();
   const controlsDisabled = !cellSelected;
-  const numberComplete = $store.isNumberComplete(num);
-  const mode = $store.mode.get();
-  const highlighted = $store.cellsHighlighted.get() === num;
+  const numberComplete = store$.isNumberComplete(num);
+  const mode = store$.mode.get();
+  const highlighted = store$.cellsHighlighted.get() === num;
   const disabled =
     gameStatus === "complete"
       ? true
@@ -26,7 +26,7 @@ export const NumberButton = observer(function NumberButton({
       ? false
       : controlsDisabled || numberComplete;
   const cellSelectedNotes = cellSelected
-    ? $store.board[cellSelected[0]][cellSelected[1]].notes.get()
+    ? store$.board[cellSelected[0]][cellSelected[1]].notes.get()
     : [];
 
   return (
@@ -79,19 +79,19 @@ export const NumberButton = observer(function NumberButton({
         if (disabled) return;
         switch (mode) {
           case "normal":
-            $store.setValue(cellSelected, num);
+            store$.setValue(cellSelected, num);
             break;
           case "notes":
-            $store.toggleNote(cellSelected, num);
+            store$.toggleNote(cellSelected, num);
             break;
         }
         Haptics.selectionAsync();
       }}
       onLongPress={() => {
         if (highlighted) {
-          $store.setHighlighted(0);
+          store$.setHighlighted(0);
         } else {
-          $store.setHighlighted(num);
+          store$.setHighlighted(num);
         }
       }}
       {...props}

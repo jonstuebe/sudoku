@@ -15,15 +15,15 @@ export type Clock = {
 
 const pad = (num: number): string => String(num).padStart(2, "0");
 
-export const $clock = observable<Clock>({
+export const clock$ = observable<Clock>({
   hours: 0,
   minutes: 0,
   seconds: 0,
   status: "running",
   time: () => {
-    const hours: number = $clock.hours.get();
-    const minutes: number = $clock.minutes.get();
-    const seconds: number = $clock.seconds.get();
+    const hours: number = clock$.hours.get();
+    const minutes: number = clock$.minutes.get();
+    const seconds: number = clock$.seconds.get();
 
     if (hours === 0) {
       return `${pad(minutes)}:${pad(seconds)}`;
@@ -32,15 +32,15 @@ export const $clock = observable<Clock>({
     return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
   },
   resume: () => {
-    $clock.status.set("running");
+    clock$.status.set("running");
   },
   pause: () => {
-    $clock.status.set("paused");
+    clock$.status.set("paused");
   },
   tick: () => {
-    let seconds = $clock.seconds.peek();
-    let minutes = $clock.minutes.peek();
-    let hours = $clock.hours.peek();
+    let seconds = clock$.seconds.peek();
+    let minutes = clock$.minutes.peek();
+    let hours = clock$.hours.peek();
 
     seconds++;
 
@@ -54,13 +54,13 @@ export const $clock = observable<Clock>({
       hours++;
     }
 
-    $clock.hours.set(hours);
-    $clock.minutes.set(minutes);
-    $clock.seconds.set(seconds);
+    clock$.hours.set(hours);
+    clock$.minutes.set(minutes);
+    clock$.seconds.set(seconds);
   },
   reset: () => {
-    $clock.hours.set(0);
-    $clock.minutes.set(0);
-    $clock.seconds.set(0);
+    clock$.hours.set(0);
+    clock$.minutes.set(0);
+    clock$.seconds.set(0);
   },
 });

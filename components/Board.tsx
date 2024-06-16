@@ -1,11 +1,11 @@
 import { observer } from "@legendapp/state/react";
 import { View } from "react-native";
-import { $store } from "../store";
+import { store$ } from "../store";
 import { getBoxByCoords } from "../utils";
 import { Box } from "./Box";
 
 export const Board = observer(function Board() {
-  const values = $store.board.get();
+  const values = store$.board.get();
 
   return (
     <View

@@ -4,7 +4,7 @@ import * as Haptics from "expo-haptics";
 import { Pressable, View } from "react-native";
 import { iOSColors } from "react-native-typography";
 import { ThemedText } from "../components/ThemedText";
-import { $store, CellCoords } from "../store";
+import { store$, CellCoords } from "../store";
 import { chunkArray, getNotesArray } from "../utils";
 import { Motion } from "@legendapp/motion";
 
@@ -26,7 +26,7 @@ export const Cell = observer(function Cell({
   notes: number[];
 }) {
   const { colors } = useTheme();
-  const showErrors = $store.showErrors.get();
+  const showErrors = store$.showErrors.get();
 
   return (
     <Motion.Pressable
@@ -36,20 +36,20 @@ export const Cell = observer(function Cell({
       }}
       onPress={() => {
         if (editable) {
-          $store.setSelected(coords);
+          store$.setSelected(coords);
 
           if (value !== 0) {
             if (highlighted) {
-              $store.setHighlighted(0);
+              store$.setHighlighted(0);
             } else {
-              $store.setHighlighted(value);
+              store$.setHighlighted(value);
             }
           }
         } else {
           if (highlighted) {
-            $store.setHighlighted(0);
+            store$.setHighlighted(0);
           } else {
-            $store.setHighlighted(value);
+            store$.setHighlighted(value);
           }
         }
 

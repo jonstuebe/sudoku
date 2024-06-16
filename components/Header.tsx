@@ -7,16 +7,16 @@ import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { ActionSheetIOS, Pressable, View } from "react-native";
 import { iOSColors } from "react-native-typography";
-import { $games } from "../games";
-import { $store } from "../store";
+import { games$ } from "../games";
+import { store$ } from "../store";
 import { Difficulty } from "../types";
 import { Clock } from "./Clock";
 
 export const Header = observer(function Header() {
   const { colors, dark } = useTheme();
   const router = useRouter();
-  const hasPastGames = $games.games.get().length === 0;
-  const difficulty = $store.difficulty.get();
+  const hasPastGames = games$.games.get().length === 0;
+  const difficulty = store$.difficulty.get();
 
   return (
     <Motion.View
@@ -49,7 +49,7 @@ export const Header = observer(function Header() {
       >
         <Pressable
           onPress={() => {
-            $store.showErrors.set(!$store.showErrors.get());
+            store$.showErrors.set(!store$.showErrors.get());
           }}
           style={({ pressed }) => ({
             opacity: pressed ? 0.85 : 1,
@@ -59,7 +59,7 @@ export const Header = observer(function Header() {
             name="alert-circle-outline"
             size={24}
             color={
-              $store.showErrors.get() ? iOSColors.red : dark ? "#FFF" : "#777"
+              store$.showErrors.get() ? iOSColors.red : dark ? "#FFF" : "#777"
             }
           />
         </Pressable>
@@ -102,7 +102,7 @@ export const Header = observer(function Header() {
               },
               (index) => {
                 if (index === 1) {
-                  $store.resetBoard();
+                  store$.resetBoard();
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                 }
               }
@@ -137,7 +137,7 @@ export const Header = observer(function Header() {
             },
           ]}
           onPressAction={({ nativeEvent: { event: id } }) => {
-            $store.newGame(id as Difficulty);
+            store$.newGame(id as Difficulty);
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
           }}
         >

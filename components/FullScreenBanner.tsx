@@ -8,16 +8,16 @@ import { View } from "react-native";
 import { iOSColors, iOSUIKit } from "react-native-typography";
 import Confetti from "react-native-confetti";
 
-import { $clock } from "../clock";
-import { $store } from "../store";
+import { clock$ } from "../clock";
+import { store$ } from "../store";
 import Button from "./Button";
 import { ThemedText } from "./ThemedText";
 import { RefObject, useEffect, useRef } from "react";
 
 export const FullScreenBanner = observer(function FullScreenBanner() {
   const { colors, dark } = useTheme();
-  const clockStatus = $clock.status.get();
-  const gameStatus = $store.status.get();
+  const clockStatus = clock$.status.get();
+  const gameStatus = store$.status.get();
   const confettiRef = useRef<Confetti>();
 
   useEffect(() => {
@@ -67,12 +67,12 @@ export const FullScreenBanner = observer(function FullScreenBanner() {
               },
             ]}
           >
-            {$store.status.get() === "playing" ? "Game Paused" : "You Won!"}
+            {store$.status.get() === "playing" ? "Game Paused" : "You Won!"}
           </ThemedText>
-          {$store.status.get() === "playing" ? (
+          {store$.status.get() === "playing" ? (
             <Button
               onPress={() => {
-                $clock.resume();
+                clock$.resume();
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
               }}
             >
@@ -86,7 +86,7 @@ export const FullScreenBanner = observer(function FullScreenBanner() {
             >
               <Button
                 onPress={() => {
-                  $store.newGame();
+                  store$.newGame();
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                 }}
               >
