@@ -146,19 +146,21 @@ export const store$ = observable<Store>({
     return false;
   },
   markGameAsComplete() {
-    const difficulty = store$.difficulty.get();
-    const time = clock$.time.get();
-    const startedAt = store$.startedAt.get();
+    const difficulty = store$.difficulty.peek();
+    const time = clock$.time.peek();
+    const startedAt = store$.startedAt.peek();
+    const numMoves = store$.numMoves.peek();
+    const numErrors = store$.numErrors.peek();
 
-    clock$.reset();
     games$.addGame({
       difficulty,
       time,
       startedAt,
-      numMoves: store$.numMoves.get(),
-      numErrors: store$.numErrors.get(),
+      numMoves,
+      numErrors,
     });
     store$.status.set("complete");
+    clock$.reset();
     router.push("completed");
   },
   pauseGame(status = "app_event") {

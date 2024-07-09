@@ -1,16 +1,14 @@
-import { observable } from "@legendapp/state";
 import { observer } from "@legendapp/state/react";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
-import { ScrollView, View } from "react-native";
-import { Difficulty } from "../types";
-import { games$ } from "../games";
-import { ThemedText } from "../components/ThemedText";
-import { format } from "date-fns";
 import { useTheme } from "@react-navigation/native";
-import { VStack } from "../components/Stack";
-import { useEffect } from "react";
+import { format } from "date-fns";
 import { useFocusEffect } from "expo-router";
+import { ScrollView, View } from "react-native";
 import { clock$ } from "../clock";
+import { VStack } from "../components/Stack";
+import { ThemedText } from "../components/ThemedText";
+import { games$ } from "../games";
+import { Difficulty } from "../types";
 
 const difficultyMatrix: Record<Difficulty, number> = {
   easy: 0,
@@ -39,7 +37,7 @@ export default observer(function Games() {
       }}
     >
       <SegmentedControl
-        values={["Easy", "Medium", "Hard"]}
+        values={["Easy", "Hard"]}
         selectedIndex={difficultyMatrix[difficulty]}
         onValueChange={(value) => {
           games$.selectedDifficulty.set(value.toLowerCase() as Difficulty);
