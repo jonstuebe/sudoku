@@ -8,6 +8,8 @@ export type Game = {
   difficulty: Difficulty;
   startedAt: Date;
   time: string;
+  numMoves: number;
+  numErrors: number;
 };
 
 export type Games = {
@@ -64,6 +66,8 @@ async function syncGames() {
           difficulty: game.difficulty,
           startedAt: parseISO(game.startedAt),
           time: game.time,
+          numMoves: game.numMoves ?? 0,
+          numErrors: game.numErrors ?? 0,
         };
       });
 
@@ -73,20 +77,3 @@ async function syncGames() {
     console.log(e);
   }
 }
-
-// function getGameLength(game: Game): string {
-//   const seconds = differenceInSeconds(game.finishedAt, game.startedAt);
-//   const minutes = Math.floor(seconds / 60);
-//   const hours = Math.floor(minutes / 60);
-
-//   if (hours === 0) {
-//     return `00:${String(minutes % 60).padStart(2, "0")}:${String(
-//       seconds % 60
-//     ).padStart(2, "0")}`;
-//   }
-
-//   return `${String(hours).padStart(2, "0")}:${String(minutes % 60).padStart(
-//     2,
-//     "0"
-//   )}:${String(seconds % 60).padStart(2, "0")}`;
-// }

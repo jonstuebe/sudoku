@@ -126,11 +126,6 @@ export const Header = observer(function Header() {
               state: difficulty === "easy" ? "on" : "off",
             },
             {
-              id: "medium",
-              title: "Medium",
-              state: difficulty === "medium" ? "on" : "off",
-            },
-            {
               id: "hard",
               title: "Hard",
               state: difficulty === "hard" ? "on" : "off",

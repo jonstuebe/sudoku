@@ -99,6 +99,14 @@ export const FullScreenBanner = observer(function FullScreenBanner() {
               >
                 View Past Games
               </Button>
+              <ThemedText
+                style={{
+                  textAlign: "center",
+                  fontWeight: "bold",
+                }}
+              >
+                {store$.numMoves.get()} moves in {clock$.time.get()}
+              </ThemedText>
             </View>
           )}
         </BlurView>

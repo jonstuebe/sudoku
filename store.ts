@@ -35,6 +35,9 @@ interface Store {
   showErrors: boolean;
   winningAnimation: WinningAnimation;
 
+  numMoves: number;
+  numErrors: number;
+
   resetBoard: VoidFunction;
   newGame: (difficulty?: Difficulty) => void;
   setHighlighted: (value: number) => void;
@@ -53,6 +56,10 @@ export const store$ = observable<Store>({
   mode: "normal",
   winningAnimation: "Stars",
   difficulty: "easy",
+
+  numMoves: 0,
+  numErrors: 0,
+
   cellSelected: () => {
     let coords: CellCoords | undefined = undefined;
 
@@ -73,6 +80,9 @@ export const store$ = observable<Store>({
   ...getBoards("easy"),
   resetBoard: () => {
     const unfilledBoard = store$.unfilledBoard.get();
+
+    store$.numMoves.set(0);
+    store$.numErrors.set(0);
     store$.board.set(toMetaBoard(copyBoard(unfilledBoard)));
     store$.status.set("playing");
     store$.startedAt.set(new Date());
@@ -84,6 +94,8 @@ export const store$ = observable<Store>({
     }
     const { board, solvedBoard, unfilledBoard } = getBoards(difficulty);
 
+    store$.numMoves.set(0);
+    store$.numErrors.set(0);
     store$.difficulty.set(difficulty);
     store$.solvedBoard.set(solvedBoard);
     store$.board.set(board);
@@ -135,6 +147,8 @@ export const store$ = observable<Store>({
       difficulty,
       time,
       startedAt,
+      numMoves: store$.numMoves.get(),
+      numErrors: store$.numErrors.get(),
     });
     store$.status.set("complete");
   },
@@ -179,6 +193,12 @@ export const store$ = observable<Store>({
 
           if (store$.cellsHighlighted.get() === value) {
             store$.setHighlighted(value);
+          }
+
+          store$.numMoves.set(store$.numMoves.get() + 1);
+
+          if (store$.solvedBoard[coords[0]][coords[1]].get() !== value) {
+            store$.numErrors.set(store$.numErrors.get() + 1);
           }
         }
       });
@@ -250,6 +270,7 @@ registerDevMenuItems([
       const solvedBoard = copyBoard(store$.solvedBoard.get());
       solvedBoard[0][0] = 0;
       store$.board.set(toMetaBoard(solvedBoard));
+      store$.numMoves.set(40);
     },
   },
   {

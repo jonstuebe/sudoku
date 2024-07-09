@@ -104,11 +104,8 @@ function removeNumbers(board: Board, difficulty: Difficulty): Board {
     case "easy":
       numCellsToRemove = 40;
       break;
-    case "medium":
-      numCellsToRemove = 48;
-      break;
     case "hard":
-      numCellsToRemove = 59;
+      numCellsToRemove = 50;
       break;
     default:
       numCellsToRemove = 40;

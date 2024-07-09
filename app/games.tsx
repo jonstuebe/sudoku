@@ -7,6 +7,7 @@ import { games$ } from "../games";
 import { ThemedText } from "../components/ThemedText";
 import { format } from "date-fns";
 import { useTheme } from "@react-navigation/native";
+import { VStack } from "../components/Stack";
 
 const difficultyMatrix: Record<Difficulty, number> = {
   easy: 0,
@@ -49,8 +50,26 @@ export default observer(function Games() {
                   justifyContent: "space-between",
                 }}
               >
-                <ThemedText>{format(game.startedAt, "MM/dd/yyyy")}</ThemedText>
-                <ThemedText>{game.time}</ThemedText>
+                <VStack>
+                  <ThemedText>
+                    {format(game.startedAt, "MM/dd/yyyy")}
+                  </ThemedText>
+                  <ThemedText>{game.time}</ThemedText>
+                </VStack>
+                <VStack>
+                  <ThemedText>
+                    <ThemedText style={{ fontWeight: "bold" }}>
+                      Moves:
+                    </ThemedText>{" "}
+                    {game.numMoves}
+                  </ThemedText>
+                  <ThemedText>
+                    <ThemedText style={{ fontWeight: "bold" }}>
+                      Errors:
+                    </ThemedText>{" "}
+                    {game.numErrors}
+                  </ThemedText>
+                </VStack>
               </View>
             );
           })}
