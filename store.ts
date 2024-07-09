@@ -35,6 +35,7 @@ interface Store {
 
   // settings
   showErrors: boolean;
+  highlightRowColumn: boolean;
   winningAnimation: WinningAnimation;
 
   numMoves: number;
@@ -58,6 +59,7 @@ interface Store {
 
 export const store$ = observable<Store>({
   mode: "normal",
+  highlightRowColumn: true,
   winningAnimation: "Stars",
   difficulty: "easy",
 

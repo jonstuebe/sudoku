@@ -47,22 +47,36 @@ export const Header = observer(function Header() {
           flex: 1 / 3,
         }}
       >
-        <Pressable
-          onPress={() => {
-            store$.showErrors.set(!store$.showErrors.get());
+        <MenuView
+          onPressAction={({ nativeEvent: { event: id } }) => {
+            switch (id) {
+              case "showErrors":
+                store$.showErrors.set(!store$.showErrors.get());
+                break;
+              case "highlightRowColumn":
+                store$.highlightRowColumn.set(!store$.highlightRowColumn.get());
+                break;
+            }
           }}
-          style={({ pressed }) => ({
-            opacity: pressed ? 0.85 : 1,
-          })}
+          actions={[
+            {
+              id: "showErrors",
+              title: "Show Errors",
+              state: store$.showErrors.get() ? "on" : "off",
+            },
+            {
+              id: "highlightRowColumn",
+              title: "Highlight Row/Column",
+              state: store$.highlightRowColumn.get() ? "on" : "off",
+            },
+          ]}
         >
           <Icon
-            name="alert-circle-outline"
+            name="settings-outline"
             size={24}
-            color={
-              store$.showErrors.get() ? iOSColors.red : dark ? "#FFF" : "#777"
-            }
+            color={dark ? "#FFF" : "#777"}
           />
-        </Pressable>
+        </MenuView>
         <Pressable
           disabled={hasPastGames}
           onPress={() => {

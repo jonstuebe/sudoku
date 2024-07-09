@@ -7,6 +7,25 @@ import { ThemedText } from "../components/ThemedText";
 import { store$, CellCoords } from "../store";
 import { chunkArray, getNotesArray } from "../utils";
 import { Motion } from "@legendapp/motion";
+import { useMemo } from "react";
+
+function isInSelectedRowOrColumn({
+  coords,
+  selected,
+  selectedCoords,
+}: {
+  coords: CellCoords;
+  selected: boolean;
+  selectedCoords?: CellCoords;
+}) {
+  if (selectedCoords === undefined) return false;
+  if (selected) return true;
+
+  const [row, column] = coords;
+  const [selectedRow, selectedColumn] = selectedCoords;
+
+  return row === selectedRow || column === selectedColumn;
+}
 
 export const Cell = observer(function Cell({
   coords,
@@ -27,6 +46,13 @@ export const Cell = observer(function Cell({
 }) {
   const { colors } = useTheme();
   const showErrors = store$.showErrors.get();
+
+  const selectedCoords = store$.cellSelected.get();
+  const highlightRowColumnEnabled = store$.highlightRowColumn.get();
+  const inSelectedRowOrColumn = useMemo(() => {
+    if (highlightRowColumnEnabled === false) return false;
+    return isInSelectedRowOrColumn({ coords, selected, selectedCoords });
+  }, [coords, selected, selectedCoords, highlightRowColumnEnabled]);
 
   return (
     <Motion.Pressable
@@ -57,32 +83,25 @@ export const Cell = observer(function Cell({
       }}
     >
       <Motion.View
-        initial={{
-          borderColor: colors.card,
-        }}
-        animate={{
-          borderColor:
-            !valid && value && showErrors
-              ? colors.notification
-              : highlighted
-              ? iOSColors.green
-              : selected
-              ? colors.primary
-              : colors.card,
-        }}
-        transition={{
-          borderColor: {
-            type: "timing",
-            duration: 125,
-          },
-        }}
         style={[
           {
             aspectRatio: 1,
             borderRadius: 8,
             borderWidth: 2,
+            borderColor:
+              !valid && value && showErrors
+                ? colors.notification
+                : highlighted
+                ? iOSColors.green
+                : selected
+                ? colors.primary
+                : inSelectedRowOrColumn
+                ? colors.border
+                : colors.card,
             flex: 1,
-            backgroundColor: colors.card,
+            backgroundColor: inSelectedRowOrColumn
+              ? colors.border
+              : colors.card,
             justifyContent: "center",
             alignItems: "center",
           },
