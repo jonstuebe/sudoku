@@ -8,6 +8,9 @@ import { ThemedText } from "../components/ThemedText";
 import { format } from "date-fns";
 import { useTheme } from "@react-navigation/native";
 import { VStack } from "../components/Stack";
+import { useEffect } from "react";
+import { useFocusEffect } from "expo-router";
+import { clock$ } from "../clock";
 
 const difficultyMatrix: Record<Difficulty, number> = {
   easy: 0,
@@ -19,6 +22,14 @@ export default observer(function Games() {
   const { colors } = useTheme();
   const difficulty = games$.selectedDifficulty.get();
   const games = games$.sortedGames.get();
+
+  useFocusEffect(() => {
+    clock$.pause();
+
+    return () => {
+      clock$.resume();
+    };
+  });
 
   return (
     <View

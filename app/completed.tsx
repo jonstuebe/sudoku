@@ -47,10 +47,11 @@ export default observer(function CompletedScreen() {
         >
           You Won!
         </ThemedText>
-        <VStack>
+        <VStack spacing={8}>
           <Button
             onPress={() => {
               store$.newGame();
+              router.back();
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             }}
           >
@@ -59,7 +60,12 @@ export default observer(function CompletedScreen() {
           <Button
             variation="outline"
             color={iOSColors.midGray}
-            onPress={() => router.push("games")}
+            onPress={() => {
+              router.replace("games");
+
+              store$.newGame();
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            }}
           >
             View Past Games
           </Button>
