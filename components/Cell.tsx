@@ -1,28 +1,27 @@
+import { Motion } from "@legendapp/motion";
 import { observer } from "@legendapp/state/react";
 import { useTheme } from "@react-navigation/native";
 import * as Haptics from "expo-haptics";
-import { Pressable, View } from "react-native";
-import { iOSColors } from "react-native-typography";
-import { ThemedText } from "../components/ThemedText";
-import { store$, CellCoords } from "../store";
-import { chunkArray, getNotesArray } from "../utils";
-import { Motion } from "@legendapp/motion";
 import { useMemo } from "react";
+import { View } from "react-native";
+import { iOSColors } from "react-native-typography";
+import { CellCoords, store$ } from "../store";
+import { getNotesArray } from "../utils";
 
-function isInSelectedRowOrColumn({
+function isInPressedRowOrColumn({
   coords,
   selected,
-  selectedCoords,
+  pressedCoords,
 }: {
   coords: CellCoords;
   selected: boolean;
-  selectedCoords?: CellCoords;
+  pressedCoords?: CellCoords;
 }) {
-  if (selectedCoords === undefined) return false;
+  if (pressedCoords === undefined) return false;
   if (selected) return true;
 
   const [row, column] = coords;
-  const [selectedRow, selectedColumn] = selectedCoords;
+  const [selectedRow, selectedColumn] = pressedCoords;
 
   return row === selectedRow || column === selectedColumn;
 }
@@ -47,12 +46,12 @@ export const Cell = observer(function Cell({
   const { colors } = useTheme();
   const showErrors = store$.showErrors.get();
 
-  const selectedCoords = store$.cellSelected.get();
+  const pressedCoords = store$.cellPressed.get();
   const highlightRowColumnEnabled = store$.highlightRowColumn.get();
   const inSelectedRowOrColumn = useMemo(() => {
     if (highlightRowColumnEnabled === false) return false;
-    return isInSelectedRowOrColumn({ coords, selected, selectedCoords });
-  }, [coords, selected, selectedCoords, highlightRowColumnEnabled]);
+    return isInPressedRowOrColumn({ coords, selected, pressedCoords });
+  }, [coords, selected, pressedCoords, highlightRowColumnEnabled]);
 
   return (
     <Motion.Pressable
@@ -61,6 +60,8 @@ export const Cell = observer(function Cell({
         aspectRatio: 1,
       }}
       onPress={() => {
+        store$.cellPressed.set(coords);
+
         if (editable) {
           store$.setSelected(coords);
 

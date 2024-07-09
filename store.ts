@@ -17,6 +17,7 @@ interface Store {
 
   difficulty: Difficulty;
   cellSelected: CellCoords | undefined;
+  cellPressed: CellCoords | undefined;
   cellsHighlighted: number | undefined;
   /**
    * Current board (contains user values)
@@ -79,6 +80,7 @@ export const store$ = observable<Store>({
 
     return coords;
   },
+  cellPressed: undefined,
   cellsHighlighted: undefined,
   status: "playing",
   startedAt: new Date(),
