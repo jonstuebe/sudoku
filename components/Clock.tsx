@@ -1,9 +1,10 @@
 import { observer } from "@legendapp/state/react";
 import { useTheme } from "@react-navigation/native";
 import { useEffect } from "react";
+import { Pressable } from "react-native";
 import { clock$ } from "../clock";
 import { ThemedText } from "../components/ThemedText";
-import { Pressable } from "react-native";
+import { store$ } from "../store";
 
 export const Clock = observer(function Clock() {
   const { dark } = useTheme();
@@ -25,11 +26,7 @@ export const Clock = observer(function Clock() {
   return (
     <Pressable
       onPress={() => {
-        if (status === "running") {
-          clock$.pause();
-        } else {
-          clock$.resume();
-        }
+        store$.pauseGame();
       }}
       style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
     >

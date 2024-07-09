@@ -6,6 +6,8 @@ import { clock$ } from "./clock";
 import { games$ } from "./games";
 import { copyBoard, fromMetaBoard, getBoards, toMetaBoard } from "./logic";
 import { Board, BoardWithMeta, Difficulty, WinningAnimation } from "./types";
+import { router } from "expo-router";
+import { AppState } from "react-native";
 
 export type CellCoords = [number, number];
 export type CellNotes = number[];
@@ -40,6 +42,8 @@ interface Store {
 
   resetBoard: VoidFunction;
   newGame: (difficulty?: Difficulty) => void;
+  pauseGame: (status?: "app_inactive" | "app_event") => void;
+  resumeGame: VoidFunction;
   setHighlighted: (value: number) => void;
   isNumberComplete: (value: number) => boolean;
   setValue: (coords: CellCoords | undefined, value: number) => void;
@@ -142,7 +146,7 @@ export const store$ = observable<Store>({
     const time = clock$.time.get();
     const startedAt = store$.startedAt.get();
 
-    clock$.pause();
+    clock$.reset();
     games$.addGame({
       difficulty,
       time,
@@ -151,6 +155,21 @@ export const store$ = observable<Store>({
       numErrors: store$.numErrors.get(),
     });
     store$.status.set("complete");
+    router.push("completed");
+  },
+  pauseGame(status = "app_event") {
+    clock$.pause();
+
+    if (store$.status.get() === "playing" && status === "app_event") {
+      router.push("paused");
+    }
+  },
+  resumeGame() {
+    clock$.resume();
+
+    if (router.canGoBack()) {
+      router.back();
+    }
   },
   isNumberComplete: (value: number) => {
     const board = store$.board.get();
@@ -260,6 +279,14 @@ store$.onChange(({ value }) => {
 AsyncStorage.getItem("showErrors").then((value) => {
   if (value) {
     store$.showErrors.set(value === "true");
+  }
+});
+
+AppState.addEventListener("change", (state) => {
+  if (state !== "active") {
+    store$.pauseGame("app_inactive");
+  } else {
+    store$.resumeGame();
   }
 });
 

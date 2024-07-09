@@ -64,3 +64,22 @@ export const clock$ = observable<Clock>({
     clock$.seconds.set(0);
   },
 });
+
+// clock$.onChange(({ value, getPrevious }) => {
+//   const prev = getPrevious();
+//   const gameStatus = store$.status.get();
+
+//   if (gameStatus === "playing") {
+//     if (value.status === "paused" && prev.status === "running") {
+//       router.push("paused");
+//     }
+
+//     if (
+//       value.status === "running" &&
+//       prev.status === "paused" &&
+//       router.canGoBack()
+//     ) {
+//       router.back();
+//     }
+//   }
+// });
