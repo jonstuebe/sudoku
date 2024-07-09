@@ -17,12 +17,12 @@
       "distribution": "internal",
       "channel": "preview"
     },
-    "prod": {
+    "production": {
       "channel": "production"      
     }
   },
   "submit": {
-    "prod": {
+    "production": {
       "ios": {
         "appleId": "jstuebe@gmail.com",
         "ascAppId": "6504424161",
