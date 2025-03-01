@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.jonstuebe.sudoku",
-      "buildNumber": "18",
+      "buildNumber": "19",
       "config": {
         "usesNonExemptEncryption": false
       }
