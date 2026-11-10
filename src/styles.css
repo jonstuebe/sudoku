@@ -218,38 +218,6 @@ h3 {
   font-size: 13px;
 }
 
-/* Four tabs share a phone's width (less inside a dialog); Intermediate is the long one. */
-@media (max-width: 400px) {
-  .segmented-difficulty {
-    gap: 4px;
-  }
-
-  .segmented-difficulty .segment > span {
-    padding: 0 4px;
-    font-size: 12px;
-    letter-spacing: -0.01em;
-  }
-
-  .segmented-difficulty .segment-done {
-    margin-left: 2px;
-  }
-
-  .modal-body {
-    padding: 18px 16px 20px;
-  }
-}
-
-/* Too narrow for four tabs in a dialog: two rows of two. */
-@media (max-width: 359px) {
-  .modal .segmented-difficulty {
-    flex-wrap: wrap;
-  }
-
-  .modal .segmented-difficulty .segment {
-    flex-basis: 40%;
-  }
-}
-
 .segment-done {
   margin-left: 5px;
   color: var(--accent);

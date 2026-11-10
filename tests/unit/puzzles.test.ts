@@ -27,8 +27,8 @@ describe('every shipped Puzzle', () => {
       const result = grade(grid);
       if (!result.solved || result.level !== TARGETS[difficulty].level) problems.push(`${where}: graded level ${result.level}`);
       if (grid.filter(Boolean).length < TARGETS[difficulty].minGivens) problems.push(`${where}: too few givens`);
-      const { minOpenings } = TARGETS[difficulty];
-      if (minOpenings && (fewestOpenings(grid) ?? 0) < minOpenings) problems.push(`${where}: too few cells open while scanning boxes`);
+      const { openings } = TARGETS[difficulty];
+      if (openings && (fewestOpenings(grid, openings.scan) ?? 0) < openings.min) problems.push(`${where}: too few cells open by ${openings.scan}`);
     });
     expect(problems).toEqual([]);
   });

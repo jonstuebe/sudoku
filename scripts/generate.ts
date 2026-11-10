@@ -1,5 +1,5 @@
 import { countSolutions, formatGrid, shuffle, type Grid } from '../src/lib/sudoku.ts';
-import { fewestOpenings, grade, type Level } from '../src/lib/techniques.ts';
+import { fewestOpenings, grade, type Level, type Scan } from '../src/lib/techniques.ts';
 import { DIFFICULTIES, type Difficulty, type Puzzle, type PuzzleSet } from '../src/lib/types.ts';
 
 interface Target {
@@ -7,21 +7,20 @@ interface Target {
   level: Level;
   /** How sparse it may get. */
   minGivens: number;
-  /** When set, box scanning alone solves it and always has at least this many cells open. */
-  minOpenings?: number;
+  /** When set, that Scan alone solves it and always has at least `min` cells open. */
+  openings?: { scan: Scan; min: number };
 }
 
 /** What each difficulty asks of a Puzzle. */
 export const TARGETS: Record<Difficulty, Target> = {
-  beginner: { level: 1, minGivens: 40, minOpenings: 3 },
-  intermediate: { level: 1, minGivens: 36 },
-  advanced: { level: 2, minGivens: 28 },
-  expert: { level: 3, minGivens: 22 },
+  beginner: { level: 1, minGivens: 44, openings: { scan: 'look', min: 5 } },
+  intermediate: { level: 1, minGivens: 40, openings: { scan: 'box', min: 3 } },
+  advanced: { level: 1, minGivens: 36 },
 };
 
 /** Whether a grid meets a difficulty's target, or is still easier than it. */
-function fits(grid: Grid, { level, minOpenings }: Target): boolean {
-  if (minOpenings) return (fewestOpenings(grid) ?? 0) >= minOpenings;
+function fits(grid: Grid, { level, openings }: Target): boolean {
+  if (openings) return (fewestOpenings(grid, openings.scan) ?? 0) >= openings.min;
   const result = grade(grid);
   return result.solved && result.level <= level;
 }
@@ -79,7 +78,7 @@ export function generatePuzzle(difficulty: Difficulty, random: () => number): Pu
   }
 }
 
-/** The four Puzzles for a date key, the same on every run. */
+/** The three Puzzles for a date key, the same on every run. */
 export function generateSet(date: string): PuzzleSet {
   const random = seededRandom(`sudoku:${date}`);
   return Object.fromEntries(DIFFICULTIES.map((d) => [d, generatePuzzle(d, random)])) as PuzzleSet;

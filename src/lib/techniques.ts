@@ -21,7 +21,7 @@ export type Technique =
 
 export type Level = 1 | 2 | 3;
 
-/** 1 is singles (Beginner and Intermediate), 2 Advanced, 3 Expert. */
+/** 1 is singles, which every Difficulty needs. Levels 2 and 3 only explain Hints. */
 export const TECHNIQUE_LEVEL: Record<Technique, Level> = {
   'hidden-single': 1,
   'naked-single': 1,
@@ -304,24 +304,43 @@ export function nextPlacement(grid: Grid): LogicalStep | null {
 }
 
 /**
- * How many cells a player can fill just by scanning boxes (a digit with one
- * spot left in a box, no notes needed) at the scarcest point of solving that
- * way. Points where every empty cell is open don't count. Null when box
- * scanning alone gets stuck. This is what keeps Beginner gentle.
+ * Two ways to find a cell without Notes:
+ * - `look`: its row, column and box already show eight different digits.
+ * - `box`: a digit has only one spot left in a box.
  */
-export function fewestOpenings(grid: Grid): number | null {
+export type Scan = 'look' | 'box';
+
+function openCells(values: Grid, scan: Scan): Map<number, number> {
+  const open = new Map<number, number>();
+  if (scan === 'look') {
+    for (let i = 0; i < 81; i++) {
+      const cands = values[i] ? 0 : candidatesAt(values, i);
+      if (popcount(cands) === 1) open.set(i, digitsOf(cands)[0]);
+    }
+    return open;
+  }
+  for (const box of BOXES) {
+    for (let d = 1; d <= 9; d++) {
+      const spots = box.filter((i) => !values[i] && candidatesAt(values, i) & bit(d));
+      if (spots.length === 1) open.set(spots[0], d);
+    }
+  }
+  return open;
+}
+
+/**
+ * How many cells a player can fill by one kind of Scan at the scarcest point
+ * of solving that way alone. Points where every empty cell is open don't
+ * count. Null when that Scan gets stuck. This is what keeps the easy
+ * Difficulties gentle.
+ */
+export function fewestOpenings(grid: Grid, scan: Scan): number | null {
   const values = grid.slice();
   let fewest = Infinity;
   for (;;) {
     const empty = values.filter((v) => !v).length;
     if (!empty) return fewest;
-    const open = new Map<number, number>();
-    for (const box of BOXES) {
-      for (let d = 1; d <= 9; d++) {
-        const spots = box.filter((i) => !values[i] && candidatesAt(values, i) & bit(d));
-        if (spots.length === 1) open.set(spots[0], d);
-      }
-    }
+    const open = openCells(values, scan);
     if (!open.size) return null;
     if (open.size < empty) fewest = Math.min(fewest, open.size);
     const [index, digit] = open.entries().next().value!;

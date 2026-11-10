@@ -9,7 +9,7 @@ const NOON = parseDateKey('2026-11-10')! + 12 * 3_600_000;
 const get = (path: string, now = NOON, method = 'GET') => handle(new Request(`https://sudoku.jonstuebe.com${path}`, { method }), now, SETS);
 
 describe('GET /api/puzzle/:date', () => {
-  it('serves today’s four Puzzles with their number', async () => {
+  it('serves today’s three Puzzles with their number', async () => {
     const res = get('/api/puzzle/2026-11-10');
     expect(res.status).toBe(200);
     await expect(res.json()).resolves.toEqual({ number: 1, puzzles: SET });

@@ -27,7 +27,7 @@ export default defineConfig({
       manifest: {
         name: 'Sudoku',
         short_name: 'Sudoku',
-        description: 'Four new sudoku every day: beginner, intermediate, advanced and expert.',
+        description: 'Three new sudoku every day: beginner, intermediate and advanced.',
         start_url: '/',
         scope: '/',
         display: 'standalone',

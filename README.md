@@ -1,16 +1,16 @@
 # Sudoku
 
-Four new sudoku every day, the same for everyone: **Beginner**, **Intermediate**, **Advanced** and **Expert**. Pick a difficulty (it's a saved setting, also on the tabs above the board), solve it, then share a spoiler-free result like:
+Three new sudoku every day, the same for everyone: **Beginner**, **Intermediate** and **Advanced**. Pick a difficulty (it's a saved setting, also on the tabs above the board), solve it, then share a spoiler-free result like:
 
 ```
-Sudoku #12 · Expert
+Sudoku #12 · Advanced
 ⏱️ 12:34 · 1 mistake, 1 hint
 🟩🟩🟩
 🟩🟥🟩
 🟩🟩🟨
 ```
 
-- One set of four Puzzles per day, chosen from the player's **local** date.
+- One set of three Puzzles per day, chosen from the player's **local** date.
 - A small Cloudflare Worker serves only today's set, so future grids can't be read from the page source (see [ADR 0001](docs/adr/0001-pre-generated-graded-puzzles.md)).
 - Wrong digits turn red and count as mistakes. Hints reveal a cell and say which technique finds it. Mistakes plus hints are **slips**; zero slips is a perfect score.
 - Each difficulty keeps its own stats: played, solved %, streak, best streak, best and average time, and a slip distribution. Progress mid-puzzle, results and settings live in `localStorage` (`sudoku:v1`); today's set is cached in `sudoku:puzzle`.
@@ -43,7 +43,7 @@ The e2e server runs on port 4175, not Vite's default 4173, so it never reuses a 
 npm run deploy       # build, then wrangler deploy to https://sudoku.jonstuebe.com
 ```
 
-One Cloudflare Worker serves the static site and `GET /api/puzzle/<YYYY-MM-DD>`, which returns `{ number, puzzles: { beginner, intermediate, advanced, expert } }` only while that date is "today" somewhere on Earth (UTC−12 to UTC+14). Every other date gets a 404.
+One Cloudflare Worker serves the static site and `GET /api/puzzle/<YYYY-MM-DD>`, which returns `{ number, puzzles: { beginner, intermediate, advanced } }` only while that date is "today" somewhere on Earth (UTC−12 to UTC+14). Every other date gets a 404.
 
 ## Content
 
@@ -59,16 +59,15 @@ Generation is seeded by date, so re-running it gives the same Puzzles. Then comm
 
 - Puzzle number = days since `LAUNCH_DATE` in `worker/puzzles.ts` (Puzzle #1 on launch day, 2026-11-10). When the list runs out, players see "Back tomorrow"; it never loops.
 - Each grid is `givens` and `solution`, 81 characters row by row, `.` for an empty cell.
-- Difficulty comes from `src/lib/techniques.ts`, a solver that only uses human techniques. A Puzzle's difficulty is the hardest technique it needs:
+- Difficulty comes from `src/lib/techniques.ts`, a solver that only uses human techniques. Every Difficulty needs only singles; what changes is how easy they are to see:
 
-  | Difficulty   | Hardest technique needed                                           | Givens |
-  | ------------ | ------------------------------------------------------------------ | ------ |
-  | Beginner     | scanning boxes only, with at least 3 cells always open (no notes)  | ≥ 40   |
-  | Intermediate | hidden and naked singles                                           | ≥ 36   |
-  | Advanced     | locked candidates, naked/hidden pairs, naked triples               | ≥ 28   |
-  | Expert       | hidden triples, naked quads, X-Wing, XY-Wing, Swordfish            | ≥ 22   |
+  | Difficulty   | How it's solved                                                                     | Givens |
+  | ------------ | ----------------------------------------------------------------------------------- | ------ |
+  | Beginner     | look at a cell's row, column and box: one digit missing. Always at least 5 such cells | ≥ 44   |
+  | Intermediate | scan a box for the one spot a digit fits. Always at least 3 such cells               | ≥ 40   |
+  | Advanced     | hidden and naked singles anywhere; spotting them may take Notes                      | ≥ 36   |
 
-  Beginner and Intermediate both need only singles. Beginner is the gentle one: box scanning alone (a digit with one spot left in a box) solves it, and at every point at least three cells can be found that way (`fewestOpenings`).
+  `fewestOpenings(grid, scan)` measures the first two: it solves by that scan alone and reports the fewest cells open at any point. The harder techniques (pairs, X-Wing, Swordfish and so on) stay in the solver so Hints can name them.
 
   Every Puzzle is solvable by those techniques alone (no guessing), which also proves its solution is unique. The unit tests re-check every shipped Puzzle against a brute-force solver.
 
