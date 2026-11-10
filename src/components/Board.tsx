@@ -10,6 +10,8 @@ interface BoardProps {
   onSelect: (index: number) => void;
   /** Hides the digits (and what they are) while the clock is paused. */
   hidden: boolean;
+  /** A digit held on the keypad: every cell holding it lights up, in place of the selection's. */
+  spotlight?: number | null;
 }
 
 const NOTE_DIGITS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -26,9 +28,9 @@ function describe(puzzle: Puzzle, record: PuzzleRecord, i: number): string {
 }
 
 /** The 9×9 grid. Arrow keys move the selection (handled by Game); focus follows it. */
-export function Board({ puzzle, record, selected, onSelect, hidden }: BoardProps) {
+export function Board({ puzzle, record, selected, onSelect, hidden, spotlight = null }: BoardProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const selectedValue = selected === null ? 0 : valueAt(record, selected);
+  const selectedValue = spotlight ?? (selected === null ? 0 : valueAt(record, selected));
   const solved = record.status === 'won';
 
   // Keep focus on the selected cell while it's inside the board, so arrows read out.
@@ -54,8 +56,8 @@ export function Board({ puzzle, record, selected, onSelect, hidden }: BoardProps
               if (selected !== null) {
                 if (i === selected) classes.push('is-selected');
                 else if (rowOf(i) === rowOf(selected) || colOf(i) === colOf(selected) || boxOf(i) === boxOf(selected)) classes.push('is-peer');
-                if (selectedValue && value === selectedValue && i !== selected) classes.push('is-same');
               }
+              if (selectedValue && value === selectedValue && (spotlight || i !== selected)) classes.push('is-same');
             }
             return (
               <div

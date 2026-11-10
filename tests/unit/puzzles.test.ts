@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import puzzles from '../../worker/puzzles.json';
 import { countSolutions, isConsistent, parseGrid } from '../../src/lib/sudoku';
-import { grade } from '../../src/lib/techniques';
+import { fewestOpenings, grade } from '../../src/lib/techniques';
 import { DIFFICULTIES, type PuzzleSet } from '../../src/lib/types';
 import { TARGETS, generateSet } from '../../scripts/generate';
 import { dateOfPuzzle } from '../../worker/puzzles';
@@ -27,6 +27,8 @@ describe('every shipped Puzzle', () => {
       const result = grade(grid);
       if (!result.solved || result.level !== TARGETS[difficulty].level) problems.push(`${where}: graded level ${result.level}`);
       if (grid.filter(Boolean).length < TARGETS[difficulty].minGivens) problems.push(`${where}: too few givens`);
+      const { minOpenings } = TARGETS[difficulty];
+      if (minOpenings && (fewestOpenings(grid) ?? 0) < minOpenings) problems.push(`${where}: too few cells open while scanning boxes`);
     });
     expect(problems).toEqual([]);
   });

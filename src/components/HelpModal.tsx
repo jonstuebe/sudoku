@@ -11,11 +11,12 @@ export function HelpModal({ open, onClose }: { open: boolean; onClose: () => voi
         <li>Finish with no mistakes or hints for a perfect score.</li>
       </ul>
       <p>
-        There are three new puzzles every day, the same for everyone: <strong>Beginner</strong>, <strong>Intermediate</strong> and{' '}
-        <strong>Advanced</strong>. Each difficulty keeps its own streak.
+        There are four new puzzles every day, the same for everyone: <strong>Beginner</strong>, <strong>Intermediate</strong>,{' '}
+        <strong>Advanced</strong> and <strong>Expert</strong>. Each difficulty keeps its own streak.
       </p>
       <p className="modal-footnote">
-        Beginner needs only singles. Intermediate needs pairs and locked candidates. Advanced needs X-Wings, XY-Wings and friends, but never guessing.
+        Beginner always has a few cells you can find by scanning a box, no notes needed. Intermediate needs only singles. Advanced needs pairs and locked
+        candidates. Expert needs X-Wings, XY-Wings and friends, but never guessing.
       </p>
       <button className="button button-primary" type="button" onClick={onClose} data-autofocus>
         Start playing

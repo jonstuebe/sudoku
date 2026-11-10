@@ -14,7 +14,7 @@ for (const theme of ['light', 'dark'] as const) {
 
     await page.getByRole('button', { name: 'Start playing' }).click();
     // A wrong digit, a note, and the selection highlights all on screen at once.
-    await pickDifficulty(page, 'Advanced');
+    await pickDifficulty(page, 'Expert');
     await enter(page, 1, 1, 1);
     await page.getByRole('button', { name: 'Notes' }).click();
     await enter(page, 1, 3, 7);

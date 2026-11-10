@@ -23,7 +23,7 @@ export interface Stats {
 
 export interface Settings {
   theme: ThemeSetting;
-  /** Which of the day's three Puzzles is on the board. */
+  /** Which of the day's four Puzzles is on the board. */
   difficulty: Difficulty;
 }
 

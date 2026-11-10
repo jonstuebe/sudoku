@@ -1,6 +1,6 @@
 # Sudoku
 
-A daily sudoku: every player gets the same three grids each day, one per difficulty.
+A daily sudoku: every player gets the same four grids each day, one per difficulty.
 
 ## Language
 
@@ -9,7 +9,7 @@ One graded grid: its givens and its single solution.
 _Avoid_: Board, level, game
 
 **Puzzle set**:
-A day's three Puzzles, one per Difficulty, served together.
+A day's four Puzzles, one per Difficulty, served together.
 _Avoid_: Daily, bundle
 
 **Puzzle number**:
@@ -20,11 +20,18 @@ _Avoid_: Day number, puzzle id
 The local calendar date on which Puzzle #1 is played.
 
 **Difficulty**:
-Beginner, Intermediate or Advanced: the level of the hardest Technique a Puzzle needs. The player's choice is a setting.
+Beginner, Intermediate, Advanced or Expert: the level of the hardest Technique a Puzzle needs. Beginner and Intermediate both need only singles; Beginner also needs no Notes, because Box scanning alone always has a few Openings. The player's choice is a setting.
 _Avoid_: Mode, tier
 
 **Technique**:
 A deduction a person makes, from hidden singles up to Swordfish. Each has a level (1–3) that sets Difficulty.
+
+**Box scanning**:
+Finding where a digit goes by checking which cells of a box it's ruled out of. The one Technique a player can do by eye, without Notes.
+_Avoid_: Cross-hatching
+
+**Opening**:
+A cell a player could fill right now by Box scanning. Beginner never has fewer than three until the last few cells.
 
 **Givens**:
 The digits a Puzzle starts with. They can't be changed.

@@ -9,7 +9,8 @@ const SOLUTION = '85249317649768152316327594871485236993516728462893471554132689
 export const TEST_SET = {
   beginner: { givens: '...' + SOLUTION.slice(3), solution: SOLUTION },
   intermediate: { givens: '....' + SOLUTION.slice(4), solution: SOLUTION },
-  advanced: {
+  advanced: { givens: '.....' + SOLUTION.slice(5), solution: SOLUTION },
+  expert: {
     givens: '.3..6..5.1..5....9.95..3......3...9.2..9.1..7.4...2......7..54.7....5..8.1..9..6.',
     solution: '837469152126587439495213876671358294253941687948672315389726541764135928512894763',
   },
@@ -40,7 +41,7 @@ export async function enter(page: Page, row: number, col: number, digit: number)
 }
 
 /** Switches the board to a difficulty through its tab. */
-export async function pickDifficulty(page: Page, name: 'Beginner' | 'Intermediate' | 'Advanced'): Promise<void> {
+export async function pickDifficulty(page: Page, name: 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert'): Promise<void> {
   // The radio itself is visually hidden; its label is what gets tapped.
   const radio = page.getByRole('radio', { name: new RegExp(`^${name}`) });
   await page.getByRole('group', { name: 'Difficulty' }).locator('label', { has: radio }).click();

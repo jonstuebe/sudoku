@@ -1,13 +1,30 @@
 import { countSolutions, formatGrid, shuffle, type Grid } from '../src/lib/sudoku.ts';
-import { grade, type Level } from '../src/lib/techniques.ts';
-import type { Difficulty, Puzzle, PuzzleSet } from '../src/lib/types.ts';
+import { fewestOpenings, grade, type Level } from '../src/lib/techniques.ts';
+import { DIFFICULTIES, type Difficulty, type Puzzle, type PuzzleSet } from '../src/lib/types.ts';
 
-/** What each difficulty asks of a Puzzle: the hardest technique it needs, and how sparse it may get. */
-export const TARGETS: Record<Difficulty, { level: Level; minGivens: number }> = {
-  beginner: { level: 1, minGivens: 36 },
-  intermediate: { level: 2, minGivens: 28 },
-  advanced: { level: 3, minGivens: 22 },
+interface Target {
+  /** The hardest technique it needs. */
+  level: Level;
+  /** How sparse it may get. */
+  minGivens: number;
+  /** When set, box scanning alone solves it and always has at least this many cells open. */
+  minOpenings?: number;
+}
+
+/** What each difficulty asks of a Puzzle. */
+export const TARGETS: Record<Difficulty, Target> = {
+  beginner: { level: 1, minGivens: 40, minOpenings: 3 },
+  intermediate: { level: 1, minGivens: 36 },
+  advanced: { level: 2, minGivens: 28 },
+  expert: { level: 3, minGivens: 22 },
 };
+
+/** Whether a grid meets a difficulty's target, or is still easier than it. */
+function fits(grid: Grid, { level, minOpenings }: Target): boolean {
+  if (minOpenings) return (fewestOpenings(grid) ?? 0) >= minOpenings;
+  const result = grade(grid);
+  return result.solved && result.level <= level;
+}
 
 /** A seeded PRNG (mulberry32), so a date always generates the same Puzzles. */
 export function seededRandom(seed: string): () => number {
@@ -33,9 +50,9 @@ function randomSolution(random: () => number): Grid {
 
 /**
  * Empties cells in 180°-symmetric pairs, keeping each removal only while
- * logic up to `level` still solves the grid (which also keeps it unique).
+ * the grid still fits the target (logic solving it also keeps it unique).
  */
-function dig(solution: Grid, level: Level, minGivens: number, random: () => number): Grid {
+function dig(solution: Grid, target: Target, random: () => number): Grid {
   const grid = solution.slice();
   let givens = 81;
   const order = shuffle(
@@ -44,10 +61,9 @@ function dig(solution: Grid, level: Level, minGivens: number, random: () => numb
   );
   for (const i of order) {
     const pair = i === 40 ? [40] : [i, 80 - i];
-    if (givens - pair.length < minGivens) continue;
+    if (givens - pair.length < target.minGivens) continue;
     for (const p of pair) grid[p] = 0;
-    const result = grade(grid);
-    if (result.solved && result.level <= level) givens -= pair.length;
+    if (fits(grid, target)) givens -= pair.length;
     else for (const p of pair) grid[p] = solution[p];
   }
   return grid;
@@ -55,20 +71,16 @@ function dig(solution: Grid, level: Level, minGivens: number, random: () => numb
 
 /** One Puzzle whose hardest technique is exactly the difficulty's level. */
 export function generatePuzzle(difficulty: Difficulty, random: () => number): Puzzle {
-  const { level, minGivens } = TARGETS[difficulty];
+  const target = TARGETS[difficulty];
   for (;;) {
     const solution = randomSolution(random);
-    const givens = dig(solution, level, minGivens, random);
-    if (grade(givens).level === level) return { givens: formatGrid(givens), solution: formatGrid(solution) };
+    const givens = dig(solution, target, random);
+    if (grade(givens).level === target.level) return { givens: formatGrid(givens), solution: formatGrid(solution) };
   }
 }
 
-/** The three Puzzles for a date key, the same on every run. */
+/** The four Puzzles for a date key, the same on every run. */
 export function generateSet(date: string): PuzzleSet {
   const random = seededRandom(`sudoku:${date}`);
-  return {
-    beginner: generatePuzzle('beginner', random),
-    intermediate: generatePuzzle('intermediate', random),
-    advanced: generatePuzzle('advanced', random),
-  };
+  return Object.fromEntries(DIFFICULTIES.map((d) => [d, generatePuzzle(d, random)])) as PuzzleSet;
 }

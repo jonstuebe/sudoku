@@ -21,7 +21,7 @@ export type Technique =
 
 export type Level = 1 | 2 | 3;
 
-/** 1 is Beginner, 2 Intermediate, 3 Advanced. */
+/** 1 is singles (Beginner and Intermediate), 2 Advanced, 3 Expert. */
 export const TECHNIQUE_LEVEL: Record<Technique, Level> = {
   'hidden-single': 1,
   'naked-single': 1,
@@ -300,5 +300,31 @@ export function nextPlacement(grid: Grid): LogicalStep | null {
     if (!step) return null;
     if (step.placement) return { ...step.placement, technique: step.technique, via: [...via].sort((a, z) => TECHNIQUE_LEVEL[a] - TECHNIQUE_LEVEL[z]) };
     via.add(step.technique);
+  }
+}
+
+/**
+ * How many cells a player can fill just by scanning boxes (a digit with one
+ * spot left in a box, no notes needed) at the scarcest point of solving that
+ * way. Points where every empty cell is open don't count. Null when box
+ * scanning alone gets stuck. This is what keeps Beginner gentle.
+ */
+export function fewestOpenings(grid: Grid): number | null {
+  const values = grid.slice();
+  let fewest = Infinity;
+  for (;;) {
+    const empty = values.filter((v) => !v).length;
+    if (!empty) return fewest;
+    const open = new Map<number, number>();
+    for (const box of BOXES) {
+      for (let d = 1; d <= 9; d++) {
+        const spots = box.filter((i) => !values[i] && candidatesAt(values, i) & bit(d));
+        if (spots.length === 1) open.set(spots[0], d);
+      }
+    }
+    if (!open.size) return null;
+    if (open.size < empty) fewest = Math.min(fewest, open.size);
+    const [index, digit] = open.entries().next().value!;
+    values[index] = digit;
   }
 }

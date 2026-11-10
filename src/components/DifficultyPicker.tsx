@@ -15,7 +15,7 @@ export function DifficultyPicker({ value, onChange, done = {}, name, legend, cla
   return (
     <fieldset className={`setting ${className ?? ''}`}>
       <legend className={className ? 'sr-only' : 'setting-name'}>{legend}</legend>
-      <div className="segmented">
+      <div className="segmented segmented-difficulty">
         {DIFFICULTIES.map((d) => (
           <label key={d} className="segment">
             <input type="radio" name={name} value={d} checked={value === d} onChange={() => onChange(d)} />

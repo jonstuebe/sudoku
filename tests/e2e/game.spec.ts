@@ -149,3 +149,27 @@ test('digits go on the board right after switching difficulty', async ({ page })
   await page.keyboard.press('8');
   await expect(cell(page, 1, 1)).toHaveAccessibleName('Row 1, column 1: 8');
 });
+
+test('holding a digit lights up every cell that has it, without entering it', async ({ page }) => {
+  await openGame(page);
+  const five = page.getByRole('group', { name: 'Digits' }).getByRole('button', { name: /^5,/ });
+  const lit = page.locator('.cell.is-same');
+  await five.hover();
+  await page.mouse.down();
+  // The test solution has nine 5s; one is still to place.
+  await expect(lit).toHaveCount(8);
+  await page.mouse.up();
+  await expect(lit).toHaveCount(0);
+  await expect(cell(page, 1, 1)).toHaveAccessibleName('Row 1, column 1: empty');
+  await five.click();
+  await expect(cell(page, 1, 1)).toHaveAccessibleName('Row 1, column 1: 5, wrong');
+});
+
+test('holding a finished digit lights up nothing', async ({ page }) => {
+  await openGame(page);
+  await page.getByRole('group', { name: 'Digits' }).getByRole('button', { name: /^9,/ }).hover();
+  await page.mouse.down();
+  await page.waitForTimeout(600);
+  await expect(page.locator('.cell.is-same')).toHaveCount(0);
+  await page.mouse.up();
+});

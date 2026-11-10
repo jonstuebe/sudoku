@@ -81,6 +81,10 @@ body {
   line-height: 1.45;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
+  /* A game, not a document: no selecting text or long-press callouts, which iOS shows on stray holds. */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -214,6 +218,38 @@ h3 {
   font-size: 13px;
 }
 
+/* Four tabs share a phone's width (less inside a dialog); Intermediate is the long one. */
+@media (max-width: 400px) {
+  .segmented-difficulty {
+    gap: 4px;
+  }
+
+  .segmented-difficulty .segment > span {
+    padding: 0 4px;
+    font-size: 12px;
+    letter-spacing: -0.01em;
+  }
+
+  .segmented-difficulty .segment-done {
+    margin-left: 2px;
+  }
+
+  .modal-body {
+    padding: 18px 16px 20px;
+  }
+}
+
+/* Too narrow for four tabs in a dialog: two rows of two. */
+@media (max-width: 359px) {
+  .modal .segmented-difficulty {
+    flex-wrap: wrap;
+  }
+
+  .modal .segmented-difficulty .segment {
+    flex-basis: 40%;
+  }
+}
+
 .segment-done {
   margin-left: 5px;
   color: var(--accent);
@@ -248,7 +284,6 @@ h3 {
   border-radius: 10px;
   overflow: hidden;
   background: var(--tile);
-  user-select: none;
 }
 
 .board-row {
@@ -522,7 +557,6 @@ h3 {
   display: grid;
   grid-template-columns: repeat(9, 1fr);
   gap: 5px;
-  user-select: none;
 }
 
 .key {
@@ -557,7 +591,8 @@ h3 {
   font-variant-numeric: tabular-nums;
 }
 
-.key:active:not(:disabled) {
+.key:active:not(:disabled),
+.key.is-held {
   background: var(--line);
 }
 
@@ -935,6 +970,7 @@ h3 {
   border-radius: 8px;
   border: 1.5px solid var(--line);
   font-size: 14px;
+  white-space: nowrap;
   cursor: pointer;
 }
 

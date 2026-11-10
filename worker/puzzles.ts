@@ -39,7 +39,7 @@ export function isTodaySomewhere(dateMs: number, now: number): boolean {
   return now >= dateMs - 14 * HOUR_MS && now < dateMs + DAY_MS + 12 * HOUR_MS;
 }
 
-/** A date's three Puzzles, or null before launch, after the list runs out, or for a bad key. */
+/** A date's four Puzzles, or null before launch, after the list runs out, or for a bad key. */
 export function puzzlesForDate(sets: PuzzleSet[], key: string): { number: number; puzzles: PuzzleSet } | null {
   const ms = parseDateKey(key);
   if (ms === null) return null;

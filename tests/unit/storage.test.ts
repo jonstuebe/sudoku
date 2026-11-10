@@ -38,7 +38,7 @@ describe('loadState', () => {
   });
 
   it('drops an unknown difficulty and malformed records', () => {
-    const state = loadState(stored({ settings: { difficulty: 'expert' }, results: { beginner: { 1: { cells: 'short', notes: [] }, 2: won() } } }));
+    const state = loadState(stored({ settings: { difficulty: 'grandmaster' }, results: { beginner: { 1: { cells: 'short', notes: [] }, 2: won() } } }));
     expect(state.settings.difficulty).toBe('beginner');
     expect(Object.keys(state.results.beginner)).toEqual(['2']);
   });

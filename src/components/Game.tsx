@@ -47,6 +47,7 @@ export function Game({ puzzle, difficulty, puzzleNumber, date, record, active, n
   const [notes, setNotes] = useState(false);
   const [paused, setPaused] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [spotlight, setSpotlight] = useState<number | null>(null);
 
   // The clock lives in a ref so moves can stamp it without re-rendering every tick.
   const elapsedRef = useRef(record.elapsedMs);
@@ -198,7 +199,7 @@ export function Game({ puzzle, difficulty, puzzleNumber, date, record, active, n
 
       <div className="board-wrap">
         <div className="board-frame">
-          <Board puzzle={puzzle} record={record} selected={playing ? selected : null} onSelect={(i) => canEdit && setSelected(i)} hidden={playing && paused} />
+          <Board puzzle={puzzle} record={record} selected={playing ? selected : null} onSelect={(i) => canEdit && setSelected(i)} hidden={playing && paused} spotlight={spotlight} />
           {playing && paused ? (
             <div className="paused">
               <p>Paused</p>
@@ -234,7 +235,7 @@ export function Game({ puzzle, difficulty, puzzleNumber, date, record, active, n
               Give up
             </button>
           </div>
-          <Keypad remaining={remainingDigits(puzzle, record)} notes={notes} onDigit={input} />
+          <Keypad remaining={remainingDigits(puzzle, record)} notes={notes} onDigit={input} onSpotlight={setSpotlight} />
         </section>
       ) : (
         <Result difficulty={difficulty} puzzleNumber={puzzleNumber} record={record} nextDifficulty={nextDifficulty} onDifficulty={onDifficulty} onExpire={onExpire} onToast={onToast} />

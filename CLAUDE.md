@@ -1,10 +1,10 @@
 # Sudoku
 
-A daily sudoku. Every day there are three Puzzles, the same for everyone: Beginner, Intermediate and Advanced. The player's difficulty is a saved setting.
+A daily sudoku. Every day there are four Puzzles, the same for everyone: Beginner, Intermediate, Advanced and Expert. The player's difficulty is a saved setting.
 
 - Fill the grid so every row, column and 3×3 box holds 1–9 once each.
 - A wrong digit turns red and counts as a mistake. Hints reveal a cell. Mistakes plus hints are slips; zero is perfect.
-- Difficulty is the hardest human technique a Puzzle needs (`src/lib/techniques.ts`), never guessing.
+- Difficulty is the hardest human technique a Puzzle needs (`src/lib/techniques.ts`), never guessing. Beginner also has to be solvable by box scanning alone, with several cells always open, so it never needs notes.
 
 ## Agent skills
 
